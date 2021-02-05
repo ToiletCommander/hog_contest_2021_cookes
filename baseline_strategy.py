@@ -5,4 +5,4 @@
 
 
 def baseline_strategy(score, opponent_score):
-    return 6
+    return 10

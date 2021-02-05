@@ -21,7 +21,8 @@ def roll_dice(num_rolls, dice=six_sided):
             sow_sad = True
         else:
             sum += currentRoll
-    return 1 if sow_sad else sum
+    returnVal = 1 if sow_sad else sum
+    return returnVal
     # END PROBLEM 1
 
 
@@ -40,7 +41,9 @@ def piggy_points(score):
             smallestDigit = currentDigit
     if smallestDigit == -1:
         smallestDigit = 0
-    return smallestDigit + 3
+    
+    returnVal = smallestDigit + 3
+    return returnVal
 
     # END PROBLEM 2
 
