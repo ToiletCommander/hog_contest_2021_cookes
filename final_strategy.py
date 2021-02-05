@@ -51,11 +51,6 @@ def getDiceResults(numRoll, diceSide, previousSum = 0, isOne = False):
         print("calculating results where numRoll =", numRoll, 'and diceSide =', diceSide, 'and previousSum =', previousSum)
 
     if numRoll >= 1:
-        appendReadKeys = appendResults.keys()
-        appendKeys = []
-        for i in appendReadKeys:
-            appendKeys.append(i)
-        
         for i in range(1,diceSide+1):
             if DEBUG_ON and EXCESS_DEBUG:
                 print("iterating " + str(i) + "/" + str(diceSide))
@@ -69,9 +64,8 @@ def getDiceResults(numRoll, diceSide, previousSum = 0, isOne = False):
             newItems = newResultsToAdd[1].items()
             
             for (key,currentValue) in newItems:
-                if key in appendKeys:
-                    appendResults[key] += currentValue
-                    appendKeys.append(key)
+                if key in appendResults.keys():
+                    appendResults[key] = appendResults[key] + currentValue
                 else:
                     appendResults[key] = currentValue
             sumItems += newResultsToAdd[0]
@@ -117,12 +111,12 @@ def calculateDicePossibility(numRoll,diceSide,targetNum):
 calculateDicePossibility.possibilities = {}
 
 def getWinningChance(currentPlayerLastTimeTrot, opponentLastTimeTrot, numToRoll, selfScore, opponentScore, targetScore, turnNum = 0, currentPlayer = 0, currentLevel = 0):
-    def getWinningChanceForSpecificScoreIncrease(lastTimeTrot,newScore):
+    def getWinningChanceForSpecificScoreIncrease(newScore):
         if(newScore >= targetScore):
             return 1.0
 
         moreBoar = gamecalc.more_boar(newScore,opponentScore)
-        timeTrot = gamecalc.time_trot(turnNum,numToRoll,lastTimeTrot)
+        timeTrot = gamecalc.time_trot(turnNum,numToRoll,currentPlayerLastTimeTrot)
         moreTurn = moreBoar or timeTrot
 
         biggestChance = 0.0
@@ -140,12 +134,13 @@ def getWinningChance(currentPlayerLastTimeTrot, opponentLastTimeTrot, numToRoll,
                     biggestChanceThrow = i
             chance = biggestChance
         else:
-            biggestChance = 1.0
+            biggestChance = 0
             for i in range(0,numChance+1):
-                currentChance = 1.0 - getWinningChance(opponentLastTimeTrot,timeTrot,i,opponentScore,newScore,targetScore,0,0,currentLevel+1)
-                if(currentChance < biggestChance):
+                currentChance = getWinningChance(opponentLastTimeTrot,timeTrot,i,opponentScore,newScore,targetScore,0,0,currentLevel+1)
+                if(currentChance > biggestChance):
                     biggestChance = currentChance
                     biggestChanceThrow = i
+            biggestChance = 1.0 - biggestChance
         return biggestChance
 
     def winningChanceForDicePossibility():
@@ -156,7 +151,7 @@ def getWinningChance(currentPlayerLastTimeTrot, opponentLastTimeTrot, numToRoll,
         if numToRoll == 0:
             scoreIncrease = gamecalc.piggy_points(opponentScore)
             newScore = selfScore+scoreIncrease
-            specificWinningChance = getWinningChanceForSpecificScoreIncrease(currentPlayerLastTimeTrot,newScore)
+            specificWinningChance = getWinningChanceForSpecificScoreIncrease(newScore)
             chance = specificWinningChance
             return chance
 
@@ -172,10 +167,11 @@ def getWinningChance(currentPlayerLastTimeTrot, opponentLastTimeTrot, numToRoll,
             valueToIterate.append(1)
             for i in range(scoreSmallest,scoreBiggest+1):
                 valueToIterate.append(i)
+            
             for i in valueToIterate:
                 scoreIncrease = i
                 newScore = selfScore+scoreIncrease
-                specificWinningChance = getWinningChanceForSpecificScoreIncrease(currentPlayerLastTimeTrot,newScore)
+                specificWinningChance = getWinningChanceForSpecificScoreIncrease(newScore)
                 chanceSum += calculateDicePossibility(numToRoll,diceSideNum,scoreIncrease) * specificWinningChance
             return chanceSum
 
@@ -189,7 +185,8 @@ def getWinningChance(currentPlayerLastTimeTrot, opponentLastTimeTrot, numToRoll,
         print("calculating winning chance for " + str(numToRoll) + " rolls when score is (" + str(selfScore) + "," + str(opponentScore) + "), and turn=" + str(turnNum))
     
 
-    saveKey = (currentPlayerLastTimeTrot,numToRoll,selfScore,opponentScore,targetScore,turnNum)
+    thisTimeItCanTrot = gamecalc.time_trot(turnNum,numToRoll,currentPlayerLastTimeTrot)
+    saveKey = (thisTimeItCanTrot,numToRoll,selfScore,opponentScore,targetScore)
     if saveKey in getWinningChance.result_dict.keys():
         returnVal = getWinningChance.result_dict[saveKey]
         if DEBUG_ON and (currentLevel == 0 or EXCESS_DEBUG):
@@ -205,6 +202,11 @@ def getWinningChance(currentPlayerLastTimeTrot, opponentLastTimeTrot, numToRoll,
     return returnVal
 
 getWinningChance.result_dict = {}
+
+def make_winning_chance(score0,score1):
+	def func(numToRoll):
+		return getWinningChance(False,False,numToRoll,score0,score1,100,0,0,0)
+	return func
 
 def strategy_to_play(turnNum, dice_side_num, selfScore, opponentScore, canTimeTrot):
     """This is the function to implement final strategy, it gives you all possible informations about the current turn
@@ -270,9 +272,6 @@ def final_strategy(score, opponent_score):
     else:
         turnNumber = final_strategy.last_turn_num + 1
         canTrot = not(final_strategy.last_time_trot)
-        #we should see whether last time really used the "time trot strategy because it might have triggered a more boar"
-        if gamecalc.more_boar(score,opponent_score):
-            canTrot = True
         diceSideNum = 8
 
     #determine strategy to play

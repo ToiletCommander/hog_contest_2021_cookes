@@ -39,7 +39,7 @@ def test(strategy0, strategy1, score0 = 0, score1 = 0, goal = 100):
                 isMoreBoar = gamecalc.more_boar(score0,score1)
                 isTimeTrot = gamecalc.time_trot(turnNum,strategyThisRound,isPreviousTimeTrot)
                 isPlayerPlaying = isMoreBoar or isTimeTrot
-                isPreviousTimeTrot = not(isMoreBoar) and isTimeTrot
+                isPreviousTimeTrot = isTimeTrot
                 print("rolling", strategyThisRound, 'with a score increase of',scoreAdditionThisRound)
                 if(isMoreBoar):
                     print("MoreBoar!")
@@ -72,7 +72,7 @@ def test(strategy0, strategy1, score0 = 0, score1 = 0, goal = 100):
                 isMoreBoar =  gamecalc.more_boar(score1,score0)
                 isTimeTrot = gamecalc.time_trot(turnNum,strategyThisRound,isPreviousTimeTrot)
                 isPlayerPlaying = isMoreBoar or isTimeTrot
-                isPreviousTimeTrot = not(isMoreBoar) and isTimeTrot
+                isPreviousTimeTrot = isTimeTrot
                 print("rolling", strategyThisRound, 'with a score increase of',scoreAdditionThisRound)
                 if(isMoreBoar):
                     print("MoreBoar!")
@@ -88,15 +88,22 @@ def test(strategy0, strategy1, score0 = 0, score1 = 0, goal = 100):
     # END PROBLEM 6
     return score0, score1
 
-testResults = []
-numTest = 50
-for i in range(numTest):
-    print("testcase",i+1,'/',numTest)
-    testResults.append(test(baseline_strategy.baseline_strategy,final_strategy.final_strategy,0,0,100))
-print("finished")
-print(testResults)
-countWinNum = 0
-for i in testResults:
-    if i[1] >= 100:
-        countWinNum+=1
-print("winRate",countWinNum,'/',numTest)
+def tests(baseStrategy, strategy, size, baseStrategyName = 'baseStrat', strategyName = 'diffStrat'):
+    testResults = []
+    for i in range(size):
+        print("testcase",i+1,'/',size)
+        testResults.append(test(baseStrategy,strategy,0,0,100))
+    print("finished")
+    print(testResults)
+    countWinNum = 0
+    for i in testResults:
+        if i[1] >= 100:
+            countWinNum+=1
+    print("winRate of", strategyName, "winning", baseStrategyName, countWinNum,'/',size)
+    return countWinNum / size
+
+print(
+    tests(baseline_strategy.baseline_strategy,final_strategy.final_strategy,600,'roll(6)','final_strat'),
+    ';',
+    tests(final_strategy.more_boar_strategy,final_strategy.final_strategy,600,'more_boar','final_strat'),
+)
