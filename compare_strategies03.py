@@ -5,7 +5,8 @@ from urllib.request import Request, urlopen
 
 from auth import OAuthSession
 from baseline_strategy import baseline_strategy
-from final_strategy import final_strategy, piggypoints_strategy, more_boar_strategy
+from final_strategy_train import piggypoints_strategy, more_boar_strategy
+from final_strategy import final_strategy
 from ucb import main
 
 GOAL_SCORE = 100

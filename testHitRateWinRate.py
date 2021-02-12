@@ -7,8 +7,7 @@ import submissions
 TRAIN_START_NAME = submissions.STRATEGY_NAME
 
 def performTest():
-    test.tests(baseline_strategy.baseline_strategy,final_strategy_train.final_strategy,1500,False,True)
-    test.tests(final_strategy_train.more_boar_strategy,final_strategy_train.final_strategy,1500,False,True)
+    test.tests(final_strategy_train.more_boar_strategy,final_strategy_train.final_strategy,2500,False,True)
     test.tests(final_strategy_train.final_strategy_hist,final_strategy_train.final_strategy,5000,False,True)
 
 
@@ -35,4 +34,4 @@ performTest()
 endTime = time.time()
 timeDiff = endTime - startTime
 
-print("Generate Finished in",timeDiff,"seconds")
+print("Test Finished in",timeDiff,"seconds")
