@@ -3,18 +3,11 @@ import baseline_strategy
 import test
 import time
 import submissions
-from os import path
 
 TRAIN_START_NAME = submissions.STRATEGY_NAME
 TRAIN_EPOCH_NUM = submissions.EPOCH_NUM
 
 FILENAME = 'savedStrats/' + TRAIN_START_NAME + "_" + str(TRAIN_EPOCH_NUM) + ".pkl"
-
-finalStrategyToTrain = final_strategy_train.loadStrategy(FILENAME) if path.exists(FILENAME) else final_strategy_train.final_strategy
-
-def performTest():
-    test.tests(final_strategy_train.more_boar_strategy,finalStrategyToTrain,2500,False,True)
-    test.tests(final_strategy_train.final_strategy_hist,finalStrategyToTrain,5000,False,True)
 
 
 print("Feeding Test Results to form hit data")
@@ -32,12 +25,10 @@ print("it took",(readFinishTime - startTime),"to read from pre-trained data")
 
 final_strategy_train.final_strategy.producing_actual_result = True
 
+final_strategy_train.saveStrategy(FILENAME,final_strategy_train.final_strategy)
 
-print("Feeding Test Result to test hit data")
-
-performTest()
 
 endTime = time.time()
 timeDiff = endTime - startTime
 
-print("Test Finished in",timeDiff,"seconds")
+print("Generation Finished in",timeDiff,"seconds")

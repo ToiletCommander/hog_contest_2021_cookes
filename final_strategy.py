@@ -1,13 +1,16 @@
 import final_strategy_train
 import submissions
 import time
+from os import path
 
 PLAYER_NAME = submissions.SUBMIT_NAME
 TRAIN_STRATEGY_NAME = submissions.STRATEGY_NAME
+TRAIN_EPOCH_NUM = submissions.EPOCH_NUM
+
+FILENAME = 'savedStrats/' + TRAIN_STRATEGY_NAME + "_" + str(TRAIN_EPOCH_NUM) + ".pkl"
 DEBUG_ON = False
 
-final_strategy = final_strategy_train.final_strategy
-
+final_strategy = final_strategy_train.loadStrategy(FILENAME) if path.exists(FILENAME) else final_strategy_train.final_strategy
 
 startTime = time.time()
 
