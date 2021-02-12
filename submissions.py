@@ -1,2 +1,4 @@
 STRATEGY_NAME = "1to1_more_boar_and_final_strat_his"
 IS_SUBMIT = False
+EPOCH_NUM = 10
+SUBMIT_NAME = "CookEs-" + EPOCH_NUM + "EPOCH-" + STRATEGY_NAME

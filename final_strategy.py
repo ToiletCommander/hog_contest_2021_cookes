@@ -16,7 +16,7 @@ DEBUG_ON = False
 EXCESS_DEBUG = False
 SUBMIT = submissions.IS_SUBMIT
 TRAIN_STRATEGY_NAME = submissions.STRATEGY_NAME
-PLAYER_NAME = 'CookEs'  # Change this line!
+PLAYER_NAME = submissions.SUBMIT_NAME
 
 def getDiceResults(numRoll, diceSide, previousSum = 0, isOne = False):
     sumItems = 0
