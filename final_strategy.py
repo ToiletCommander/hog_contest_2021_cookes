@@ -17,6 +17,8 @@ hitRateFileName = TRAIN_STRATEGY_NAME + "_hitRate.pkl"
 final_strategy_train.readWinningChanceWithHistoryResults(withHistWinningChanceFileName)
 final_strategy_train.readWinnningHitResults(hitRateFileName)
 
+final_strategy_train.final_strategy.producing_actual_result = True
+
 readFinishTime = time.time()
 
 if DEBUG_ON:
