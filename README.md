@@ -28,3 +28,5 @@ This turns out initially to not work well because final_strategy was designed to
  - Win Rate(Against Optimal, Sample of 5000): 0.4678
  - Lose Rate(Against Tennis Bot): 0.499621698987
  - Win Rate(Against Teenis Bot, Ranked #2): 0.500378301013
+
+30 Epochs(of 10,000 games each)
