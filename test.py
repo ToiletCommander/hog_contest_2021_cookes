@@ -1,12 +1,11 @@
 import dice as diceLib
-import final_strategy
 import gamecalc
 import baseline_strategy
 import time
 
 VIEW_STEP_BY_STEP = False
 
-def test(strategy0, strategy1, score0 = 0, score1 = 0, goal = 100):
+def test(strategy0, strategy1, score0 = 0, score1 = 0, goal = 100, canPrint = True):
     who = 0  # Who is about to take a turn, 0 (first) or 1 (second)
     eight_sided_dice = diceLib.make_fair_dice(8)
     six_sided = diceLib.make_fair_dice(6)
@@ -23,9 +22,10 @@ def test(strategy0, strategy1, score0 = 0, score1 = 0, goal = 100):
             isTimeTrot = False
             
             while isPlayerPlaying and score0 < goal:
-                print("--------------------------")
-                print('score',score0,score1)
-                print('player',0,'turn',turnNum)
+                if canPrint:
+                    print("--------------------------")
+                    print('score',score0,score1)
+                    print('player',0,'turn',turnNum)
                 if VIEW_STEP_BY_STEP:
                     time.sleep(2)
                 if(turnNum == 0):
@@ -40,11 +40,12 @@ def test(strategy0, strategy1, score0 = 0, score1 = 0, goal = 100):
                 isTimeTrot = gamecalc.time_trot(turnNum,strategyThisRound,isPreviousTimeTrot)
                 isPlayerPlaying = isMoreBoar or isTimeTrot
                 isPreviousTimeTrot = isTimeTrot
-                print("rolling", strategyThisRound, 'with a score increase of',scoreAdditionThisRound)
-                if(isMoreBoar):
-                    print("MoreBoar!")
-                elif(isTimeTrot):
-                    print("TimeTrot!")
+                if canPrint:
+                    print("rolling", strategyThisRound, 'with a score increase of',scoreAdditionThisRound)
+                    if(isMoreBoar):
+                        print("MoreBoar!")
+                    elif(isTimeTrot):
+                        print("TimeTrot!")
                 turnNum += 1
                 
             who = 1
@@ -57,9 +58,10 @@ def test(strategy0, strategy1, score0 = 0, score1 = 0, goal = 100):
             isTimeTrot = False
             
             while isPlayerPlaying and score1 < goal:
-                print("--------------------------")
-                print('score',score0,score1)
-                print('player',1,'turn',turnNum)
+                if canPrint:
+                    print("--------------------------")
+                    print('score',score0,score1)
+                    print('player',1,'turn',turnNum)
                 if VIEW_STEP_BY_STEP:
                     time.sleep(2)
                 if(turnNum == 0):
@@ -73,11 +75,12 @@ def test(strategy0, strategy1, score0 = 0, score1 = 0, goal = 100):
                 isTimeTrot = gamecalc.time_trot(turnNum,strategyThisRound,isPreviousTimeTrot)
                 isPlayerPlaying = isMoreBoar or isTimeTrot
                 isPreviousTimeTrot = isTimeTrot
-                print("rolling", strategyThisRound, 'with a score increase of',scoreAdditionThisRound)
-                if(isMoreBoar):
-                    print("MoreBoar!")
-                elif(isTimeTrot):
-                    print("TimeTrot!")
+                if canPrint:
+                    print("rolling", strategyThisRound, 'with a score increase of',scoreAdditionThisRound)
+                    if(isMoreBoar):
+                        print("MoreBoar!")
+                    elif(isTimeTrot):
+                        print("TimeTrot!")
                 turnNum += 1
             who = 0
     
@@ -88,22 +91,16 @@ def test(strategy0, strategy1, score0 = 0, score1 = 0, goal = 100):
     # END PROBLEM 6
     return score0, score1
 
-def tests(baseStrategy, strategy, size, baseStrategyName = 'baseStrat', strategyName = 'diffStrat'):
+def tests(baseStrategy, strategy, size, baseStrategyName = 'baseStrat', strategyName = 'diffStrat', canPrint = True, resultPrint = True):
     testResults = []
     for i in range(size):
-        print("testcase",i+1,'/',size)
-        testResults.append(test(baseStrategy,strategy,0,0,100))
-    print("finished")
-    print(testResults)
+        if resultPrint:
+            print("testcase",i+1,'/',size)
+        testResults.append(test(baseStrategy,strategy,0,0,100,canPrint))
     countWinNum = 0
     for i in testResults:
         if i[1] >= 100:
             countWinNum+=1
-    print("winRate of", strategyName, "winning", baseStrategyName, countWinNum,'/',size)
+    if resultPrint:
+        print("winRate of", strategyName, "winning", baseStrategyName, countWinNum,'/',size)
     return countWinNum / size
-
-print(
-    tests(baseline_strategy.baseline_strategy,final_strategy.final_strategy,600,'roll(6)','final_strat'),
-    ';',
-    tests(final_strategy.more_boar_strategy,final_strategy.final_strategy,600,'more_boar','final_strat'),
-)
