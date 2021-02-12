@@ -8,7 +8,7 @@ READ_TRAINNED_DATA = True
 TRAINING_START_NAME = submissions.STRATEGY_NAME
 
 def train():
-    test.tests(final_strategy_train.more_boar_strategy,final_strategy_train.final_strategy,100000,False,True)
+    #test.tests(final_strategy_train.more_boar_strategy,final_strategy_train.final_strategy,100000,False,True)
     #test.tests(baseline_strategy,final_strategy,2500,False,not(SUBMIT))
     test.tests(final_strategy_train.final_strategy_hist,final_strategy_train.final_strategy,100000,False,True)
 

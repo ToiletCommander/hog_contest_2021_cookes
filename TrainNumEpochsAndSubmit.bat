@@ -1,8 +1,7 @@
 @echo off
 
 TrainNumEpochs %1
-
-echo Testing
+echo Testing...
 
 performTest
 
