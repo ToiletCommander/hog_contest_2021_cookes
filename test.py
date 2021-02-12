@@ -2,15 +2,15 @@ import dice as diceLib
 import gamecalc
 import baseline_strategy
 import time
-import final_strategy
+import final_strategy_train
 import random
 import math
 
 VIEW_STEP_BY_STEP = False
 
 def test(strategy0, strategy1, score0 = 0, score1 = 0, goal = 100, canPrint = True):
-    final_strategy.resetFinalStrat()
-    final_strategy.resetFinalStratHis()
+    final_strategy_train.resetFinalStrat()
+    final_strategy_train.resetFinalStratHis()
     who = math.floor(random.random() * 2.0)  # Who is about to take a turn, 0 (first) or 1 (second)
     eight_sided_dice = diceLib.make_fair_dice(8)
     six_sided = diceLib.make_fair_dice(6)
