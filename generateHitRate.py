@@ -8,9 +8,9 @@ READ_TRAINNED_DATA = True
 TRAINING_START_NAME = submissions.STRATEGY_NAME
 
 def train():
-    test.tests(final_strategy.more_boar_strategy,final_strategy.final_strategy,100000,'random_strat','final_strat',False,True)
-    #test.tests(baseline_strategy,final_strategy,2500,'roll(6)','final_strat',False,not(SUBMIT))
-    test.tests(final_strategy.final_strategy_hist,final_strategy.final_strategy,100000,'final_strategy_hist','final_strat',False,True)
+    test.tests(final_strategy.more_boar_strategy,final_strategy.final_strategy,100000,False,True)
+    #test.tests(baseline_strategy,final_strategy,2500,False,not(SUBMIT))
+    test.tests(final_strategy.final_strategy_hist,final_strategy.final_strategy,100000,False,True)
 
 
 print("Feeding Test Results to form hit data")

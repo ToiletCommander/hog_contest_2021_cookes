@@ -7,9 +7,9 @@ import submissions
 TRAIN_START_NAME = submissions.STRATEGY_NAME
 
 def test():
-    test.tests(baseline_strategy.baseline_strategy,final_strategy.final_strategy,1500,'roll(10)','final_strat',False,True)
-    test.tests(final_strategy.more_boar_strategy,final_strategy.final_strategy,1500,'more_boar','final_strat',False,True)
-    test.tests(final_strategy.final_strategy_hist,final_strategy.final_strategy,5000,"optimal_strat","final_strat",False,True)
+    test.tests(baseline_strategy.baseline_strategy,final_strategy.final_strategy,1500,False,True)
+    test.tests(final_strategy.more_boar_strategy,final_strategy.final_strategy,1500,False,True)
+    test.tests(final_strategy.final_strategy_hist,final_strategy.final_strategy,5000,False,True)
 
 
 print("Feeding Test Results to form hit data")

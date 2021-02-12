@@ -96,10 +96,10 @@ def test(strategy0, strategy1, score0 = 0, score1 = 0, goal = 100, canPrint = Tr
     # END PROBLEM 6
     return score0, score1
 
-def tests(baseStrategy, strategy, size, baseStrategyName = 'baseStrat', strategyName = 'diffStrat', canPrint = True, resultPrint = True):
+def tests(baseStrategy, strategy, size, canPrint = True, resultPrint = True):
     if resultPrint:
         print("testing",baseStrategy.__name__,"against",strategy.__name__,"with",size,"iterations of game")
-    
+
     testResults = []
     for i in range(size):
         if canPrint:
@@ -110,5 +110,5 @@ def tests(baseStrategy, strategy, size, baseStrategyName = 'baseStrat', strategy
         if i[1] >= 100:
             countWinNum+=1
     if resultPrint:
-        print("winRate of", strategyName, "winning", baseStrategyName, countWinNum,'/',size)
+        print("winRate of", strategy.__name__, "winning", baseStrategy.__name__, countWinNum,'/',size)
     return countWinNum / size
