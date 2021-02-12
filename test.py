@@ -2,11 +2,16 @@ import dice as diceLib
 import gamecalc
 import baseline_strategy
 import time
+import final_strategy
+import random
+import math
 
 VIEW_STEP_BY_STEP = False
 
 def test(strategy0, strategy1, score0 = 0, score1 = 0, goal = 100, canPrint = True):
-    who = 0  # Who is about to take a turn, 0 (first) or 1 (second)
+    final_strategy.resetFinalStrat()
+    final_strategy.resetFinalStratHis()
+    who = math.floor(random.random() * 2.0)  # Who is about to take a turn, 0 (first) or 1 (second)
     eight_sided_dice = diceLib.make_fair_dice(8)
     six_sided = diceLib.make_fair_dice(6)
     dice = six_sided
@@ -92,9 +97,12 @@ def test(strategy0, strategy1, score0 = 0, score1 = 0, goal = 100, canPrint = Tr
     return score0, score1
 
 def tests(baseStrategy, strategy, size, baseStrategyName = 'baseStrat', strategyName = 'diffStrat', canPrint = True, resultPrint = True):
+    if resultPrint:
+        print("testing",baseStrategy.__name__,"against",strategy.__name__,"with",size,"iterations of game")
+    
     testResults = []
     for i in range(size):
-        if resultPrint:
+        if canPrint:
             print("testcase",i+1,'/',size)
         testResults.append(test(baseStrategy,strategy,0,0,100,canPrint))
     countWinNum = 0

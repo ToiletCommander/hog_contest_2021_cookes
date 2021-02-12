@@ -10,11 +10,12 @@ from baseline_strategy import baseline_strategy, random_strategy
 import time
 import pickle
 from os import path
+import submissions
 
 DEBUG_ON = False
 EXCESS_DEBUG = False
-SUBMIT = False
-TRAINING = True
+SUBMIT = submissions.IS_SUBMIT
+TRAIN_STRATEGY_NAME = submissions.STRATEGY_NAME
 PLAYER_NAME = 'CookEs'  # Change this line!
 
 def getDiceResults(numRoll, diceSide, previousSum = 0, isOne = False):
@@ -210,7 +211,9 @@ def getWinningChance(currentPlayerLastTimeTrot, opponentLastTimeTrot, numToRoll,
     saveKey = (False,numToRoll,selfScore,opponentScore,targetScore,USE_HIT)
     if not(USE_HIT):
         thisTimeItCanTrot = gamecalc.time_trot(turnNum,numToRoll,currentPlayerLastTimeTrot)
+        
         saveKey = (thisTimeItCanTrot,numToRoll,selfScore,opponentScore,targetScore)
+        
         if saveKey in getWinningChance.result_dict.keys():
             returnVal = getWinningChance.result_dict[saveKey]
             if DEBUG_ON and (currentLevel == 0 or EXCESS_DEBUG):
@@ -237,9 +240,10 @@ def getWinningChance(currentPlayerLastTimeTrot, opponentLastTimeTrot, numToRoll,
             returnVal += currentTurnOccurence * (currentCanTrotOccurence * winningChanceForDicePossibility(currentTurnNum,False) + (1-currentCanTrotOccurence) * winningChanceForDicePossibility(currentTurnNum,True))
 
     
-    if DEBUG_ON and (currentLevel == 0 or EXCESS_DEBUG):
+    if DEBUG_ON and not(USE_HIT) and (currentLevel == 0 or EXCESS_DEBUG):
         print('wc(',selfScore,opponentScore,numToRoll,') = ',returnVal)
-        print('cached',len(getWinningChance.result_dict))
+    elif DEBUG_ON and USE_HIT and (currentLevel == 0 or EXCESS_DEBUG):
+        print('wc_hit(',selfScore,opponentScore,numToRoll,') = ',returnVal)
     if not(USE_HIT) and not(saveKey in getWinningChance.result_dict.keys()):
         getWinningChance.result_dict[saveKey] = returnVal
     elif USE_HIT and not(saveKey in getWinningChance.hit_result_dict.keys()):
@@ -269,11 +273,11 @@ def readWinningChanceWithHistoryResults(filename):
         getWinningChance.result_dict = loadDictionary("savedData/" + filename)
 
 def saveWinningHitResults(filename):
-    saveDictionary("savedData/" + filename,getWinningChance.hit_result_dict)
+    saveDictionary("savedData/" + filename,getWinningChance.turn_hit_dict)
 
 def readWinnningHitResults(filename):
     if path.exists("savedData/" + filename):
-        getWinningChance.hit_result_dict = loadDictionary("savedData/" + filename)
+        getWinningChance.turn_hit_dict = loadDictionary("savedData/" + filename)
 
 def make_winning_chance(score0,score1):
 	def func(numToRoll):
@@ -368,41 +372,64 @@ final_strategy.last_self_score = 0
 final_strategy.last_time_trot = False
 final_strategy.producing_actual_result = False
 
-startTime = time.time()
+def resetFinalStrat():
+    final_strategy.last_opponent_score = -1
+    final_strategy.last_turn_num = 0
+    final_strategy.last_self_score = 0
+    final_strategy.last_time_trot = False
 
-if not(SUBMIT):
-    print("Feeding Test Results to form hit data")
+def final_strategy_hist(score, opponent_score):
+    turnNumber = 0
+    canTrot = False
+    diceSideNum = 6
 
+    #determine if this is the first turn or not
+    if(final_strategy_hist.last_opponent_score < opponent_score):
+        turnNumber = 0
+        diceSideNum = 6
+        canTrot = True
+    else:
+        turnNumber = final_strategy_hist.last_turn_num + 1
+        canTrot = not(final_strategy_hist.last_time_trot)
+        diceSideNum = 8
 
-trainingStratName = "1to1_rand_and_more_boar"
-withHistWinningChanceFileName = trainingStratName + "_historyChance.pkl"
-hitRateFileName = trainingStratName + "_hitRate.pkl"
+    #determine strategy to play
+    strategyReturn = strategy_to_play(turnNumber,diceSideNum,score,opponent_score,canTrot,True,False)
+    
+    #decode strategyReturn
+    numToRollDice = strategyReturn
+    isTimeTrot = gamecalc.time_trot(turnNumber,numToRollDice,not(canTrot))
 
-readWinningChanceWithHistoryResults(withHistWinningChanceFileName)
-readWinnningHitResults(hitRateFileName)
+    #update state variables
+    final_strategy_hist.last_opponent_score = opponent_score
+    final_strategy_hist.last_turn_num = turnNumber
+    final_strategy_hist.last_self_score = score
+    final_strategy_hist.last_time_trot = isTimeTrot
 
-readFinishTime = time.time()
+    return numToRollDice
 
-if not(SUBMIT):
-    print("it took",(readFinishTime - startTime),"to read from pre-trained data")
+#In the global frame we want to initialize 
+final_strategy_hist.last_opponent_score = -1
+final_strategy_hist.last_turn_num = 0
+final_strategy_hist.last_self_score = 0
+final_strategy_hist.last_time_trot = False
 
-if TRAINING:
-    test.tests(random_strategy,final_strategy,100000,'random_strat','final_strat',False,not(SUBMIT))
-    #test.tests(baseline_strategy,final_strategy,2500,'roll(6)','final_strat',False,not(SUBMIT))
-    test.tests(more_boar_strategy,final_strategy,100000,'more_boar','final_strat',False,not(SUBMIT))
+def resetFinalStratHis():
+    final_strategy_hist.last_opponent_score = -1
+    final_strategy_hist.last_turn_num = 0
+    final_strategy_hist.last_self_score = 0
+    final_strategy_hist.last_time_trot = False
 
-    saveWinningChanceWithHistoryResults(withHistWinningChanceFileName)
-    saveWinningHitResults(hitRateFileName)
+if SUBMIT:
+    startTime = time.time()
 
+    withHistWinningChanceFileName = TRAIN_STRATEGY_NAME + "_historyChance.pkl"
+    hitRateFileName = TRAIN_STRATEGY_NAME + "_hitRate.pkl"
 
-final_strategy.producing_actual_result = True
+    readWinningChanceWithHistoryResults(withHistWinningChanceFileName)
+    readWinnningHitResults(hitRateFileName)
 
-if not(SUBMIT):
-    print("Feeding Test Result to test hit data")
-    test.tests(baseline_strategy,final_strategy,1500,'roll(6)','final_strat',False,not(SUBMIT))
-    test.tests(more_boar_strategy,final_strategy,1500,'more_boar','final_strat',False,not(SUBMIT))
+    readFinishTime = time.time()
 
-endTime = time.time()
-timeDiff = endTime - startTime
-if not(SUBMIT):
-    print("Generate Finished in",timeDiff,"seconds")
+    if DEBUG_ON:
+        print("it took",(readFinishTime - startTime),"to read from pre-trained data")
