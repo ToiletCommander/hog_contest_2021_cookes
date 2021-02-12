@@ -263,6 +263,24 @@ def loadDictionary(filename):
     file.close()
     return temp
 
+def saveStrategy(filename,strategyToSave):
+    strategyDict = {}
+    for i in range(0,100):
+        for j in range(0,100):
+            key = (i,j)
+            strategyDict[key] = strategyToSave(i,j)
+    saveDictionary(filename,strategyDict)
+
+def loadStrategy(filename):
+    strategyDict = loadDictionary(filename)
+    def play(score,opponent_score):
+        key = (score,opponent_score)
+        if key in strategyDict.keys():
+            return strategyDict[key]
+        else:
+            return 0
+    return play
+
 def saveWinningChanceWithHistoryResults(filename):
     saveDictionary("savedData/" + filename,getWinningChance.result_dict)
 
