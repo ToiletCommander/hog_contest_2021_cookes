@@ -12,8 +12,8 @@ from ucb import main
 GOAL_SCORE = 100
 
 ENDPOINT = "https://hog-calc.cs61a.org/api/compare_strategies"
-STRATEGY_TO_COMPARE_TO = "against_optimal"
-STRATEGY_TO_COMPARE_TO_EPOCH = 30
+STRATEGY_TO_COMPARE_TO = "optimal_fairStart"
+STRATEGY_TO_COMPARE_TO_EPOCH = 1
 COMP_STRAT_FILENAME = 'savedStrats/' + STRATEGY_TO_COMPARE_TO + "_" + str(STRATEGY_TO_COMPARE_TO_EPOCH) + ".pkl"
 compstrat = final_strategy_train.loadStrategy(COMP_STRAT_FILENAME)
 

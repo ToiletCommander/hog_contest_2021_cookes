@@ -15,7 +15,7 @@ finalStrategyToTrain = final_strategy_train.loadStrategy(FILENAME) if path.exist
 def performTest():
     test.predicts(final_strategy_train.more_boar_strategy,finalStrategyToTrain,True)
     test.predicts(final_strategy_train.final_strategy_hist,finalStrategyToTrain,True)
-    test.predicts(final_strategy_train.loadStrategy("savedStrats/against_optimal_30.pkl"),finalStrategyToTrain,True)
+    test.predicts(final_strategy_train.loadStrategy("savedStrats/optimal_fairStart_1.pkl"),finalStrategyToTrain,True)
 
 
 print("Loading Trainned Results to hit data")
