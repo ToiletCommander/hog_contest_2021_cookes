@@ -70,9 +70,6 @@ def take_turn(num_rolls, opponent_score, dice=six_sided, goal=GOAL_SCORE):
         return roll_dice(num_rolls,dice)
     # END PROBLEM 3
 
-def predict_possibilities(num_rolls, opponent_score,diceSide,goal=GOAL_SCORE):
-    return 0
-
 def possibility_of_rolling_one_point(numSide, numDice):
     if numDice < 1:
         return 0

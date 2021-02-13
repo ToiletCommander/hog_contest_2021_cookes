@@ -20,7 +20,7 @@ def getDiceResults(numRoll, diceSide, previousSum = 0, isOne = False):
     sumItems = 0
     saveKey = (numRoll, diceSide)
     appendResults = {}
-
+    
     if not(isOne) and saveKey in getDiceResults.dice_results.keys():
         
         if DEBUG_ON and EXCESS_DEBUG:
@@ -43,6 +43,7 @@ def getDiceResults(numRoll, diceSide, previousSum = 0, isOne = False):
             return (savedResults[0],appendResults)
         else:
             return savedResults
+    
 
     if isOne:
         numToAdd = 0
@@ -86,7 +87,7 @@ def getDiceResults(numRoll, diceSide, previousSum = 0, isOne = False):
         if previousSum != 0:
             for (key, currentElement) in appendResults.items():
                 currentElement = appendResults[key]
-                if(currentElement != 1):
+                if(key != 1):
                     saveResults[key-previousSum] = currentElement
                 else:
                     saveResults[1] = currentElement
@@ -115,6 +116,23 @@ def calculateDicePossibility(numRoll,diceSide,targetNum):
     return returnVal
 
 calculateDicePossibility.possibilities = {}
+
+def predictScoreIncreasePossibilities(num_rolls, opponent_score, diceSide = 6):
+    if(num_rolls == 0):
+        return {gamecalc.piggy_points(opponent_score):1.0}
+
+    possibilitySig = (num_rolls,diceSide)
+    if possibilitySig in predictScoreIncreasePossibilities.possibilities:
+        return predictScoreIncreasePossibilities.possibilities[possibilitySig]
+    
+    diceResults = getDiceResults(num_rolls,diceSide)
+    newDictionary = {}
+    totalNum = diceResults[0]
+    for cKey, cValue in diceResults[1].items():
+        newDictionary[cKey] = cValue / totalNum
+    return newDictionary
+
+predictScoreIncreasePossibilities.possibilities = {}
 
 def getWinningChance(currentPlayerLastTimeTrot, opponentLastTimeTrot, numToRoll, selfScore, opponentScore, targetScore, turnNum = 0, currentPlayer = 0, currentLevel = 0, CALCULATING_HIT = False, USE_HIT = False):
     def getWinningChanceForSpecificScoreIncrease(nScore, tNum, cpLastTimeTrot):
@@ -410,7 +428,7 @@ def final_strategy_hist(score, opponent_score):
         diceSideNum = 8
 
     #determine strategy to play
-    strategyReturn = strategy_to_play(turnNumber,diceSideNum,score,opponent_score,canTrot,True,False)
+    strategyReturn = strategy_to_play(turnNumber,diceSideNum,score,opponent_score,canTrot,False,False)
     
     #decode strategyReturn
     numToRollDice = strategyReturn

@@ -13,8 +13,9 @@ FILENAME = 'savedStrats/' + TRAIN_START_NAME + "_" + str(TRAIN_EPOCH_NUM) + ".pk
 finalStrategyToTrain = final_strategy_train.loadStrategy(FILENAME) if path.exists(FILENAME) else final_strategy_train.final_strategy
 
 def performTest():
-    test.tests(final_strategy_train.more_boar_strategy,finalStrategyToTrain,2500,False,True)
-    test.tests(final_strategy_train.final_strategy_hist,finalStrategyToTrain,5000,False,True)
+    test.predicts(final_strategy_train.more_boar_strategy,finalStrategyToTrain,True)
+    test.predicts(final_strategy_train.final_strategy_hist,finalStrategyToTrain,True)
+    test.predicts(final_strategy_train.loadStrategy("savedStrats/against_optimal_30.pkl"),finalStrategyToTrain,True)
 
 
 print("Loading Trainned Results to hit data")
