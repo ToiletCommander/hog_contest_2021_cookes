@@ -6,12 +6,16 @@ from urllib.request import Request, urlopen
 from auth import OAuthSession
 from baseline_strategy import baseline_strategy
 from final_strategy import final_strategy
+import final_strategy_train
 from ucb import main
 
 GOAL_SCORE = 100
 
 ENDPOINT = "https://hog-calc.cs61a.org/api/compare_strategies"
-
+STRATEGY_TO_COMPARE_TO = "against_optimal"
+STRATEGY_TO_COMPARE_TO_EPOCH = 30
+COMP_STRAT_FILENAME = 'savedStrats/' + STRATEGY_TO_COMPARE_TO + "_" + str(STRATEGY_TO_COMPARE_TO_EPOCH) + ".pkl"
+compstrat = final_strategy_train.loadStrategy(COMP_STRAT_FILENAME)
 
 def export(strategy):
     out = []
@@ -42,4 +46,4 @@ def compare(strategy_1, strategy_2):
 
 @main
 def main():
-    compare(final_strategy, baseline_strategy)
+    compare(final_strategy, compstrat)

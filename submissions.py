@@ -1,4 +1,4 @@
-STRATEGY_NAME = "against_optimal"
+STRATEGY_NAME = "optimal_fairStart"
 IS_SUBMIT = False
-EPOCH_NUM = 30
-SUBMIT_NAME = "🍪CookEs-" + STRATEGY_NAME + "(" + str(EPOCH_NUM) + " EPOCH)"
+EPOCH_NUM = 1
+SUBMIT_NAME = "🍪CookEs-" + STRATEGY_NAME + "(" + str(EPOCH_NUM) + " EPOCH)[github.com/ToiletCommander]"

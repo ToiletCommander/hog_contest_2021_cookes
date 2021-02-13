@@ -14,7 +14,7 @@ if path.exists(FILENAME):
     print("Strategy File", FILENAME, "Already Exists!")
     exit()
 
-print("Feeding Test Results to form hit data")
+print("Loading Trainned Results to hit data")
 
 startTime = time.time()
 

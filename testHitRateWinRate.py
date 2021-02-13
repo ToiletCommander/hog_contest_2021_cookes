@@ -17,7 +17,7 @@ def performTest():
     test.tests(final_strategy_train.final_strategy_hist,finalStrategyToTrain,5000,False,True)
 
 
-print("Feeding Test Results to form hit data")
+print("Loading Trainned Results to hit data")
 
 startTime = time.time()
 

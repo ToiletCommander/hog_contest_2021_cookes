@@ -43,16 +43,34 @@ This turns out initially to not work well because final_strategy was designed to
 - Win Rate(Against Optimal, Sample of 5000): 0.477
 - Win Rate(Against Tennis Bot, Ranked #2): 0.509287074898
 
-10 Epoch(of 10,000 games against optimal)
+10 Epoch(of 10,000 games against optimal) 2021-2-12 11:50 PM Chinese Standard Time
 - Ranked 1
 - Win Rate(Against More_Boar): 0.64514360905949
 - Win Rate(Against More_Boar, Sample of 2500): 0.7856
 - Win Rate(Against Optimal, Sample of 5000): 0.4616
-- Win Rate(Against Tennis Bot, Ranked #2): 0.509687099966 => 0.515778508680
+- Win Rate(Against Tennis Bot, Ranked #2): 0.509687099966 => 0.515778508680(Tennis Bot changed its code)
 
-30 Epoch(of 10,000 games against optimal)
+30 Epoch(of 10,000 games against optimal) 2021-2-13 9:00 AM Chinese Standard Time
 - Ranked 1
 - Win Rate(Against More_Boar): 0.6449884708451865
 - Win Rate(Against More_Boar, Sample of 2500): 0.792
 - Win Rate(Against Optimal, Sample of 5000): 0.481
 - Win Rate(Against Tennis Bot, Ranked #2): 0.515966269520
+
+50 Epoch(of 10,000 games against optimal) 2021-2-13 11:00 AM Chinese Standard Time
+- Ranked 1
+- Win Rate(Against More_Boar): 0.6450820140965935
+- Win Rate(Against More_Boar, Sample of 2500): 0.7792
+- Win Rate(Against Optimal, Sample of 5000): 0.471
+- Win Rate(Against Tennis Bot, Ranked #2): Not submitted
+- Win Rate(Against 30 Epoch): 0.49936865260350893
+- Win Rate(Against 10 Epoch): 0.5006358086087815
+
+1 Epoch(of 10,000 games against optimal, with fair start) 2021-2-13 11:20 AM CN Time
+- Ranked 1
+- Win Rate(Against More_Boar): 0.6445944815554959
+- Win Rate(Against More_Boar, Sample of 2500): 0.7792
+- Win Rate(Against Optimal, Sample of 5000): 0.463
+- Win Rate(Against Tennis Bot, Ranked #2): 0.516818765350
+- Win Rate(Against 30 Epoch not fair): 0.5009886615042825
+- Win Rate(Against 10 Epoch not fair): 0.5023755757836526

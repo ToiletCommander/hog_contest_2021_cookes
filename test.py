@@ -8,10 +8,10 @@ import math
 
 VIEW_STEP_BY_STEP = False
 
-def test(strategy0, strategy1, score0 = 0, score1 = 0, goal = 100, canPrint = True):
+def test(strategy0, strategy1, score0 = 0, score1 = 0, goal = 100, startWho = 0, canPrint = True):
     final_strategy_train.resetFinalStrat()
     final_strategy_train.resetFinalStratHis()
-    who = math.floor(random.random() * 2.0)  # Who is about to take a turn, 0 (first) or 1 (second)
+    who = startWho #math.floor(random.random() * 2.0)  # Who is about to take a turn, 0 (first) or 1 (second)
     eight_sided_dice = diceLib.make_fair_dice(8)
     six_sided = diceLib.make_fair_dice(6)
     dice = six_sided
@@ -104,7 +104,7 @@ def tests(baseStrategy, strategy, size, canPrint = True, resultPrint = True):
     for i in range(size):
         if canPrint:
             print("testcase",i+1,'/',size)
-        testResults.append(test(baseStrategy,strategy,0,0,100,canPrint))
+        testResults.append(test(baseStrategy,strategy,0,0,100,i%2,canPrint))
     countWinNum = 0
     for i in testResults:
         if i[1] >= 100:
