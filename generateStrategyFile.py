@@ -3,12 +3,16 @@ import baseline_strategy
 import test
 import time
 import submissions
+from os import path
 
 TRAIN_START_NAME = submissions.STRATEGY_NAME
 TRAIN_EPOCH_NUM = submissions.EPOCH_NUM
 
 FILENAME = 'savedStrats/' + TRAIN_START_NAME + "_" + str(TRAIN_EPOCH_NUM) + ".pkl"
 
+if path.exists(FILENAME):
+    print("Strategy File", FILENAME, "Already Exists!")
+    exit()
 
 print("Feeding Test Results to form hit data")
 
