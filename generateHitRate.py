@@ -10,8 +10,8 @@ TRAINING_START_NAME = submissions.STRATEGY_NAME
 def train():
     #test.tests(final_strategy_train.more_boar_strategy,final_strategy_train.final_strategy,100000,False,True)
     #test.tests(baseline_strategy,final_strategy,2500,False,not(SUBMIT))
-    #test.predicts(final_strategy_train.final_strategy_hist,final_strategy_train.final_strategy,False,True)
-    test.tests(final_strategy_train.final_strategy_hist,final_strategy_train.final_strategy,200000,False,True)
+    test.predicts(final_strategy_train.final_strategy_hist,final_strategy_train.final_strategy,True,True)
+    #test.tests(final_strategy_train.final_strategy_hist,final_strategy_train.final_strategy,200000,False,True)
 
 
 print("Feeding Test Results to form hit data")

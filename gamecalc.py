@@ -31,7 +31,6 @@ def piggy_points(score):
 
     score:  The opponent's current score.
     """
-    # BEGIN PROBLEM 2
     scoreSq = score ** 2
     smallestDigit = -1
     while scoreSq > 0:
@@ -44,8 +43,6 @@ def piggy_points(score):
     
     returnVal = smallestDigit + 3
     return returnVal
-
-    # END PROBLEM 2
 
 
 def take_turn(num_rolls, opponent_score, dice=six_sided, goal=GOAL_SCORE):
@@ -113,6 +110,19 @@ def getDigitsFromLeftToRight(number):
     rToL = getDigitsFromRightToLeft(number)
     rToL.reverse()
     return rToL
+    
+def getFirstAndSecondDigit(number):
+    fDigit, sDigit = 0,0
+    while(number >= 100):
+        number = number // 10
+    sDigit = number % 10
+    
+    if(number < 10):
+        fDigit = 0
+    else:
+        fDigit = number // 10
+    return fDigit, sDigit
+
 
 def more_boar(player_score, opponent_score):
     """Return whether the player gets an extra turn.
@@ -131,15 +141,9 @@ def more_boar(player_score, opponent_score):
     >>> more_boar(7, 8)
     False
     """
-    # BEGIN PROBLEM 4
-    player_digits = getDigitsFromLeftToRight(player_score)
-    opponent_digits = getDigitsFromLeftToRight(opponent_score)
-    player_firstDigit = 0 if player_score < 10 else player_digits[0]
-    opponent_firstDigit = 0 if opponent_score < 10 else opponent_digits[0]
-    player_secondDigit = player_score if player_score < 10 else player_digits[1]
-    opponent_secondDigit = opponent_score if opponent_score < 10 else opponent_digits[1]
-    return player_firstDigit < opponent_firstDigit and player_secondDigit < opponent_secondDigit
-    # END PROBLEM 4
+    playerfDigit, playersDigit = getFirstAndSecondDigit(player_score)
+    opponentfDigit, opponentsDigit = getFirstAndSecondDigit(opponent_score)
+    return(playerfDigit < opponentfDigit and playersDigit < opponentsDigit)
 
 def time_trot(turn, numRolls, lastExtra):
     return (turn % 8 == numRolls and not(lastExtra))

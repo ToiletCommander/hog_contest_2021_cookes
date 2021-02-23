@@ -11,7 +11,7 @@ import pickle
 from os import path
 import submissions
 
-DEBUG_ON = False
+DEBUG_ON = True
 EXCESS_DEBUG = False
 TRAIN_STRATEGY_NAME = submissions.STRATEGY_NAME
 PLAYER_NAME = submissions.SUBMIT_NAME
@@ -180,9 +180,6 @@ def getWinningChance(currentPlayerLastTimeExtra, numToRoll, selfScore, opponentS
             specificWinningChance = getWinningChanceForSpecificScoreIncrease(newScore,oTNum,cpLastTimeExtra)
             chanceSum += cPossibility * specificWinningChance
         return max(min(chanceSum,1.0),0.0)
-
-    if DEBUG_ON and (currentLevel == 0 or EXCESS_DEBUG):
-        print("calculating winning chance for " + str(numToRoll) + " rolls when score is (" + str(selfScore) + "," + str(opponentScore) + "), and turn=" + str(turnNum))
     
     returnVal = 0
 
@@ -194,7 +191,7 @@ def getWinningChance(currentPlayerLastTimeExtra, numToRoll, selfScore, opponentS
         
         if saveKey in getWinningChance.result_dict.keys():
             returnVal = getWinningChance.result_dict[saveKey]
-            if DEBUG_ON and (currentLevel == 0 or EXCESS_DEBUG):
+            if DEBUG_ON and EXCESS_DEBUG:
                 print('wc(',selfScore,opponentScore,numToRoll,') = ',returnVal)
             return returnVal
         
@@ -204,7 +201,7 @@ def getWinningChance(currentPlayerLastTimeExtra, numToRoll, selfScore, opponentS
         saveKey = (USE_HIT,numToRoll,selfScore,opponentScore,targetScore)
         if saveKey in getWinningChance.hit_result_dict.keys():
             returnVal = getWinningChance.hit_result_dict[saveKey]
-            if DEBUG_ON and (currentLevel == 0 or EXCESS_DEBUG):
+            if DEBUG_ON and EXCESS_DEBUG:
                 print('wc_hit(',selfScore,opponentScore,numToRoll,') = ',returnVal)
             return returnVal
         
@@ -221,9 +218,9 @@ def getWinningChance(currentPlayerLastTimeExtra, numToRoll, selfScore, opponentS
             returnVal += currentTurnOccurence * winningChanceForDicePossibility(currentOverallTurnNum,currentIsTurnAtLeast1)
         returnVal = min(1.0,max(returnVal,0.0))
     
-    if DEBUG_ON and not(USE_HIT) and (currentLevel == 0 or EXCESS_DEBUG):
+    if DEBUG_ON and not(USE_HIT) and EXCESS_DEBUG:
         print('wc(',selfScore,opponentScore,numToRoll,') = ',returnVal)
-    elif DEBUG_ON and USE_HIT and (currentLevel == 0 or EXCESS_DEBUG):
+    elif DEBUG_ON and USE_HIT and EXCESS_DEBUG:
         print('wc_hit(',selfScore,opponentScore,numToRoll,') = ',returnVal)
     if not(USE_HIT) and not(saveKey in getWinningChance.result_dict.keys()):
         getWinningChance.result_dict[saveKey] = returnVal
@@ -238,6 +235,11 @@ getWinningChance.turn_hit_dict = {}
 def feedHitData(turnNum, overallTurnNum, selfScore, opponentScore, occurencePossibility = 1.0):
     hitKey = (selfScore, opponentScore)
     saveKey = (turnNum >= 1, overallTurnNum % 8)
+    
+    cacheValue = (hitKey, saveKey, occurencePossibility)
+    cacheListLen = len(feedHitData.cacheList)
+    for i in range(cacheListLen):
+        feedHitData.cacheList[i].append(cacheValue)
 
     if not(hitKey in getWinningChance.turn_hit_dict.keys()):
         getWinningChance.turn_hit_dict[hitKey] = {-1:0.0} #-1 means total
@@ -247,6 +249,28 @@ def feedHitData(turnNum, overallTurnNum, selfScore, opponentScore, occurencePoss
     else:
         getWinningChance.turn_hit_dict[hitKey][saveKey] += occurencePossibility
         getWinningChance.turn_hit_dict[hitKey][-1] += occurencePossibility
+
+feedHitData.cacheList = []
+
+def applyHitCacheData(cacheDataList):
+    for cacheValue in cacheDataList:
+        hitKey = cacheValue[0]
+        saveKey = cacheValue[1]
+        occurencePossibility = cacheValue[2]
+    if not(hitKey in getWinningChance.turn_hit_dict.keys()):
+        getWinningChance.turn_hit_dict[hitKey] = {-1:0.0} #-1 means total
+    if not(saveKey in getWinningChance.turn_hit_dict[hitKey].keys()):
+        getWinningChance.turn_hit_dict[hitKey][saveKey] = occurencePossibility
+        getWinningChance.turn_hit_dict[hitKey][-1] += occurencePossibility
+    else:
+        getWinningChance.turn_hit_dict[hitKey][saveKey] += occurencePossibility
+        getWinningChance.turn_hit_dict[hitKey][-1] += occurencePossibility
+
+def startHitDataCache():
+    feedHitData.cacheList.append([])
+
+def endHitDataCache():
+    return feedHitData.cacheList.pop()
 
 def saveDictionary(filename,dictionary):
     file = open(filename,"wb")
@@ -284,12 +308,23 @@ def readWinningChanceWithHistoryResults(filename):
     if path.exists("savedData/" + filename):
         getWinningChance.result_dict = loadDictionary("savedData/" + filename)
 
+def getListNotHit():
+    clist = []
+    for i in range(100):
+        for j in range(100):
+            currentKey = (i,j)
+            if not(currentKey in getWinningChance.turn_hit_dict.keys()):
+                clist.append(currentKey)
+    return clist
+
 def saveWinningHitResults(filename):
     saveDictionary("savedData/" + filename,getWinningChance.turn_hit_dict)
 
 def readWinnningHitResults(filename):
     if path.exists("savedData/" + filename):
         getWinningChance.turn_hit_dict = loadDictionary("savedData/" + filename)
+    if DEBUG_ON:
+        print('notHitKeys', getListNotHit())
 
 def make_winning_chance(score0,score1):
 	def func(numToRoll):

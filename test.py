@@ -126,7 +126,11 @@ def calculateWinRateOfStrat0(strategy0, strategy1, score0 = 0, score1 = 0, goal 
     saveKey = (Flipped, score0, score1, currentTurn >= 1,overallTurn % 8)
     
     if saveKey in calculateWinRateOfStrat0.result_dict.keys() and canCacheStrat0:
-        return calculateWinRateOfStrat0.result_dict[saveKey]
+        savedPair = calculateWinRateOfStrat0.result_dict[saveKey]
+        if strategy0 == final_strategy_train.final_strategy and not(final_strategy_train.final_strategy.producing_actual_result):
+            hitCacheData = savedPair[1]
+            final_strategy_train.applyHitCacheData(hitCacheData)
+        return savedPair[0]
 
     diceSide = 6
     
@@ -138,8 +142,11 @@ def calculateWinRateOfStrat0(strategy0, strategy1, score0 = 0, score1 = 0, goal 
     else:
         diceSide = 8
     
-    if strategy0 == final_strategy_train.final_strategy and not(final_strategy_train.final_strategy.producing_actual_result):
+
+    if strategy0 == final_strategy_train.final_strategy and not(final_strategy_train.final_strategy.producing_actual_result) and canCacheStrat0:
+        final_strategy_train.startHitDataCache()
         final_strategy_train.feedHitData(currentTurn,overallTurn,score0,score1,chance)
+        
 
     final_strategy_train.MATCH_CURRENT_TURN_NUM = currentTurn
     final_strategy_train.MATCH_LAST_EXTRA = currentTurn >= 1
@@ -150,10 +157,10 @@ def calculateWinRateOfStrat0(strategy0, strategy1, score0 = 0, score1 = 0, goal 
     allPossibleScoreIncreases = final_strategy_train.predictScoreIncreasePossibilities(numToRollThisRound,score1,diceSide)
     totalPossibility = 0.0
 
+    isTimeTrot = gamecalc.time_trot(overallTurn,numToRollThisRound,currentTurn >= 1)
     for cScoreAddition, cPossibility in allPossibleScoreIncreases.items():
         newScore0 = score0 + cScoreAddition
         isMoreBoar = gamecalc.more_boar(newScore0,score1)
-        isTimeTrot = gamecalc.time_trot(overallTurn,numToRollThisRound,currentTurn >= 1)
         
         currentIterationTotalPossibility = chance * cPossibility
 
@@ -166,8 +173,13 @@ def calculateWinRateOfStrat0(strategy0, strategy1, score0 = 0, score1 = 0, goal 
     totalPossibility = max(min(totalPossibility,1.0),0.0)
 
     if rLevel != 0: #and not(saveKey in calculateWinRateOfStrat0.result_dict.keys()):
-        if (Flipped and canCacheStrat1) or (not(Flipped) and canCacheStrat0):
-            calculateWinRateOfStrat0.result_dict[saveKey] = totalPossibility
+        if (canCacheStrat0):
+            resultPair = None
+            if strategy0 == final_strategy_train.final_strategy and not(final_strategy_train.final_strategy.producing_actual_result):
+                resultPair = (totalPossibility,final_strategy_train.endHitDataCache())
+            else:
+                resultPair = (totalPossibility,)
+            calculateWinRateOfStrat0.result_dict[saveKey] = resultPair
 
     return totalPossibility
 
