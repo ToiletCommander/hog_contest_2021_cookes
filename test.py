@@ -148,7 +148,7 @@ def calculateWinRateOfStrat0(strategy0, strategy1, score0 = 0, score1 = 0, goal 
         diceSide = 8
     
 
-    if strategy0 == final_strategy_train.final_strategy and not(final_strategy_train.final_strategy.producing_actual_result) and canCache:
+    if canCache and strategy0 == final_strategy_train.final_strategy and not(final_strategy_train.final_strategy.producing_actual_result):
         final_strategy_train.startHitDataCache()
         if(fitInNotTrainedHit):
             currentKey = (score0, score1)
@@ -185,16 +185,17 @@ def calculateWinRateOfStrat0(strategy0, strategy1, score0 = 0, score1 = 0, goal 
     if final_strategy_train.DEBUG_ON and rLevel <= 80:
         print('current progress', calculateWinRateOfStrat0.matchCurrentChance / calculateWinRateOfStrat0.matchTotalChance * 100.0)
 
-    if rLevel != 0: #and not(saveKey in calculateWinRateOfStrat0.result_dict.keys()):
-        if (canCache):
-            resultPair = []
-            if strategy0 == final_strategy_train.final_strategy and not(final_strategy_train.final_strategy.producing_actual_result):
-                hitDataCache = final_strategy_train.endHitDataCache()
-                resultPair = [totalPossibility,hitDataCache,1]
-            else:
-                resultPair = [totalPossibility]
-            calculateWinRateOfStrat0.result_dict[saveKey] = resultPair
-    elif not(final_strategy_train.final_strategy.producing_actual_result) and canCache:
+    
+    if (canCache):
+        resultPair = []
+        if strategy0 == final_strategy_train.final_strategy and not(final_strategy_train.final_strategy.producing_actual_result):
+            hitDataCache = final_strategy_train.endHitDataCache()
+            resultPair = [totalPossibility,hitDataCache,1]
+        else:
+            resultPair = [totalPossibility]
+        calculateWinRateOfStrat0.result_dict[saveKey] = resultPair
+    
+    if rLevel == 0 and canCache and not(final_strategy_train.final_strategy.producing_actual_result) and not(Flipped):
         final_strategy_train.applyHitCacheData(calculateWinRateOfStrat0.result_dict)
 
     return totalPossibility
