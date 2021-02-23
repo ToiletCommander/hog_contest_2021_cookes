@@ -135,7 +135,7 @@ def calculateWinRateOfStrat0(strategy0, strategy1, score0 = 0, score1 = 0, goal 
         if strategy0 == final_strategy_train.final_strategy and not(final_strategy_train.final_strategy.producing_actual_result):
             hitCacheData = savedPair[2]
             hitCacheChance = savedPair[1]
-            final_strategy_train.addHitCacheData(saveKey,hitCacheChance)
+            final_strategy_train.addHitCacheData(saveKey,chance / hitCacheChance)
         return savedPair[0]
 
     diceSide = 6
