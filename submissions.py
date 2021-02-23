@@ -1,4 +1,4 @@
-STRATEGY_NAME = "optimal_fairStart"
+STRATEGY_NAME = "ultimate"
 IS_SUBMIT = False
 EPOCH_NUM = 10
-SUBMIT_NAME = "🍪CookEs-" + STRATEGY_NAME + "(" + str(EPOCH_NUM) + " EPOCH) github@ToiletCommander"
+SUBMIT_NAME = "🍪CookEs-" + STRATEGY_NAME + "(Version " + str(EPOCH_NUM) + ") github@ToiletCommander"

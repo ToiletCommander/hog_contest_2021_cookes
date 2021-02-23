@@ -10,7 +10,8 @@ TRAINING_START_NAME = submissions.STRATEGY_NAME
 def train():
     #test.tests(final_strategy_train.more_boar_strategy,final_strategy_train.final_strategy,100000,False,True)
     #test.tests(baseline_strategy,final_strategy,2500,False,not(SUBMIT))
-    test.tests(final_strategy_train.final_strategy_hist,final_strategy_train.final_strategy,100000,False,True)
+    #test.predicts(final_strategy_train.final_strategy_hist,final_strategy_train.final_strategy,False,True)
+    test.tests(final_strategy_train.loadStrategy('savedStrats/optimal_fairStart_1.pkl'),final_strategy_train.final_strategy,200000,False,True)
 
 
 print("Feeding Test Results to form hit data")
@@ -21,7 +22,6 @@ withHistWinningChanceFileName = TRAINING_START_NAME + "_historyChance.pkl"
 hitRateFileName = TRAINING_START_NAME + "_hitRate.pkl"
 final_strategy_train.final_strategy.producing_actual_result = False
 if READ_TRAINNED_DATA:
-
     final_strategy_train.readWinningChanceWithHistoryResults(withHistWinningChanceFileName)
     final_strategy_train.readWinnningHitResults(hitRateFileName)
     readFinishTime = time.time()

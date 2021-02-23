@@ -38,6 +38,8 @@ def test(strategy0, strategy1, score0 = 0, score1 = 0, goal = 100, startWho = 0,
                 else:
                     dice = eight_sided_dice
                 
+                if strategy0 == final_strategy_train.final_strategy and not(final_strategy_train.final_strategy.producing_actual_result):
+                    final_strategy_train.feedHitData(isPreviousTimeTrot,turnNum,score0,score1,1.0)
                 strategyThisRound = strategy0(score0,score1)
                 scoreAdditionThisRound = gamecalc.take_turn(strategyThisRound,score1,dice,goal)
                 score0 += scoreAdditionThisRound
@@ -73,6 +75,8 @@ def test(strategy0, strategy1, score0 = 0, score1 = 0, goal = 100, startWho = 0,
                     dice = six_sided
                 else:
                     dice = eight_sided_dice
+                if strategy1 == final_strategy_train.final_strategy and not(final_strategy_train.final_strategy.producing_actual_result):
+                    final_strategy_train.feedHitData(isPreviousTimeTrot,turnNum,score1,score0,1.0)
                 strategyThisRound = strategy1(score1,score0)
                 scoreAdditionThisRound = gamecalc.take_turn(strategyThisRound,score0,dice,goal)
                 score1 += scoreAdditionThisRound
@@ -96,7 +100,7 @@ def test(strategy0, strategy1, score0 = 0, score1 = 0, goal = 100, startWho = 0,
     # END PROBLEM 6
     return score0, score1
 
-def calculateWinRateOfStrat0(strategy0, strategy1, score0 = 0, score1 = 0, goal = 100, currentWho = 0, canCacheStrat0 = True, canCacheStrat1 = True, currentTurn = 0, previousTrot = False, rLevel = 0, Flipped = False):
+def calculateWinRateOfStrat0(strategy0, strategy1, score0 = 0, score1 = 0, goal = 100, currentWho = 0, canCacheStrat0 = True, canCacheStrat1 = True, currentTurn = 0, previousTrot = False, rLevel = 0, Flipped = False, chance = 1.0):
     if score1 >= goal:
         return 0.0
     elif score0 >= goal:
@@ -107,7 +111,7 @@ def calculateWinRateOfStrat0(strategy0, strategy1, score0 = 0, score1 = 0, goal 
         final_strategy_train.resetFinalStratHis()
     
     if currentWho == 1:
-        return 1.0 - calculateWinRateOfStrat0(strategy1, strategy0, score1, score0, goal, 0, canCacheStrat1, canCacheStrat0, currentTurn, previousTrot, rLevel, not(Flipped))
+        return 1.0 - calculateWinRateOfStrat0(strategy1, strategy0, score1, score0, goal, 0, canCacheStrat1, canCacheStrat0, currentTurn, previousTrot, rLevel, not(Flipped),chance)
     if rLevel == 0:
         calculateWinRateOfStrat0.result_dict = {}
 
@@ -126,6 +130,9 @@ def calculateWinRateOfStrat0(strategy0, strategy1, score0 = 0, score1 = 0, goal 
     else:
         diceSide = 8
     
+    if strategy0 == final_strategy_train.final_strategy and not(final_strategy_train.final_strategy.producing_actual_result):
+        final_strategy_train.feedHitData(previousTrot,currentTurn,score0,score1,chance)
+
     numToRollThisRound = strategy0(score0,score1)
 
     allPossibleScoreIncreases = final_strategy_train.predictScoreIncreasePossibilities(numToRollThisRound,score1,diceSide)
@@ -136,16 +143,19 @@ def calculateWinRateOfStrat0(strategy0, strategy1, score0 = 0, score1 = 0, goal 
         isMoreBoar = gamecalc.more_boar(newScore0,score1)
         isTimeTrot = gamecalc.time_trot(currentTurn,numToRollThisRound,previousTrot)
         
+        currentIterationTotalPossibility = chance * cPossibility
+
         isPlayerPlaying = isMoreBoar or isTimeTrot
         if isPlayerPlaying:
-            totalPossibility += cPossibility * calculateWinRateOfStrat0(strategy0,strategy1,newScore0,score1,goal,0,canCacheStrat0,canCacheStrat1,currentTurn+1,isTimeTrot,rLevel+1,Flipped)
+            totalPossibility += cPossibility * calculateWinRateOfStrat0(strategy0,strategy1,newScore0,score1,goal,0,canCacheStrat0,canCacheStrat1,currentTurn+1,isTimeTrot,rLevel+1,Flipped,currentIterationTotalPossibility)
         else:
-            totalPossibility += cPossibility * (1.0 - calculateWinRateOfStrat0(strategy1,strategy0,score1,newScore0,goal,0,canCacheStrat1,canCacheStrat0,0,False,rLevel+1,not(Flipped)))
+            totalPossibility += cPossibility * (1.0 - calculateWinRateOfStrat0(strategy1,strategy0,score1,newScore0,goal,0,canCacheStrat1,canCacheStrat0,0,False,rLevel+1,not(Flipped),currentIterationTotalPossibility))
         if strategy0 == final_strategy_train.final_strategy:
             final_strategy_train.final_strategy.last_opponent_score = score1
             final_strategy_train.final_strategy.last_turn_num = currentTurn
             final_strategy_train.final_strategy.last_self_score = score0
             final_strategy_train.final_strategy.last_time_trot = isTimeTrot
+
         elif strategy0 == final_strategy_train.final_strategy_hist:
             final_strategy_train.final_strategy_hist.last_opponent_score = score1
             final_strategy_train.final_strategy_hist.last_turn_num = currentTurn
@@ -179,12 +189,12 @@ def tests(baseStrategy, strategy, size, canPrint = True, resultPrint = True):
         print("winRate of", strategy.__name__, "winning", baseStrategy.__name__, countWinNum,'/',size, '=', (countWinNum / size))
     return countWinNum / size
 
-def predicts(baseStrategy, strategy, resultPrint = True):
+def predicts(baseStrategy, strategy, cache = True, resultPrint = True):
     if resultPrint:
         print("predicting win rate of",strategy.__name__,"against",baseStrategy.__name__)
 
-    predictResult0 = calculateWinRateOfStrat0(strategy,baseStrategy,0,0,100,0)
-    predictResult1 = calculateWinRateOfStrat0(strategy,baseStrategy,0,0,100,1)
+    predictResult0 = calculateWinRateOfStrat0(strategy,baseStrategy,0,0,100,0,cache,cache)
+    predictResult1 = calculateWinRateOfStrat0(strategy,baseStrategy,0,0,100,1,cache,cache)
     predictResult = (predictResult0 + predictResult1) / 2.0
     if resultPrint:
         print("winRate of", strategy.__name__, "winning", baseStrategy.__name__, predictResult0, "if",strategy.__name__,"were to play first")

@@ -79,6 +79,7 @@ This turns out initially to not work well because final_strategy was designed to
 - Win Rate(Against 30 Epoch not fair): 0.5009886615042825
 - Win Rate(Against 30 Epoch not fair, calculated locally): 0.5012659637901775
 - Win Rate(Against 10 Epoch not fair): 0.5023755757836526
+- Win Rate(Against Master Hog, Ranked #3): 0.499276426183
 
 10 Epoch(of 10,000 games against optimal, with fair start) 2021-2-13 23:00 PM CN Time
 - Ranked 1
@@ -88,3 +89,9 @@ This turns out initially to not work well because final_strategy was designed to
 - Win Rate(Against Tennis Bot, Ranked #2): Not Submitted
 - Win Rate(Against 1 Epoch Fair): 0.497628323383721
 - Win Rate(Against 1 Epoch Fair, calculated locally): 0.49862808048268126
+
+
+20 Epoch(of 10,000 games against optimal, with fair start) 2021-2-13 23:00 PM CN Time
+- Ranked 1
+- Win Rate(Against Optimal, calculated locally):  0.47066184658535537
+- Win Rate(Against Master Hog by RW, Ranked #2): 0.498211448126
