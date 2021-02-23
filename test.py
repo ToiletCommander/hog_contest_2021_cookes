@@ -193,13 +193,12 @@ def calculateWinRateOfStrat0(strategy0, strategy1, score0 = 0, score1 = 0, goal 
         resultPair = []
         if strategy0 == final_strategy_train.final_strategy and not(final_strategy_train.final_strategy.producing_actual_result):
             hitDataCache = final_strategy_train.endHitDataCache(saveKey)
-            resultPair = [totalPossibility,chance,hitDataCache,1,1]
+            resultPair = [totalPossibility,chance,hitDataCache,1.0,1.0]
         else:
             resultPair = [totalPossibility]
         calculateWinRateOfStrat0.result_dict[saveKey] = resultPair
     
     if rLevel == 0 and canCache and not(final_strategy_train.final_strategy.producing_actual_result):
-        assert(len(final_strategy_train.feedHitData.cacheList) == 0)
         final_strategy_train.applyHitCacheData(calculateWinRateOfStrat0.result_dict)
         calculateWinRateOfStrat0.result_dict = {}
 

@@ -264,8 +264,7 @@ feedHitData.cacheList = []
 
 def applyHitCacheData(cacheDataList):
     #resultPair = (totalPossibility,hitDataCache)
-    def invokeCaches(cacheData,cInvokeNum = 1):
-        assert(cInvokeNum != 0)
+    def invokeCaches(cacheData,cInvokeNum):
         for cCacheValue, cPossibility in cacheData.items():
             if cCacheValue == 'invoke':
                 continue
@@ -324,6 +323,7 @@ def applyHitCacheData(cacheDataList):
     for saveKey, chanceCacheData in cacheDataList.items():
         print('invoking', counter, '/', cacheDataLength)
         if len(chanceCacheData) > 1:
+            assert(chanceCacheData[3] == 0)
             invokeCaches(chanceCacheData[2],chanceCacheData[4])
         counter+=1
         
@@ -347,9 +347,9 @@ def endHitDataCache(saveKey):
         if not('invoke' in feedHitData.cacheList[-1].keys()):
             feedHitData.cacheList[-1]['invoke'] = {}
         if not(saveKey in feedHitData.cacheList[-1]['invoke'].keys()):
-            feedHitData.cacheList[-1]['invoke'][saveKey] = 1
+            feedHitData.cacheList[-1]['invoke'][saveKey] = 1.0
         else:
-            feedHitData.cacheList[-1]['invoke'][saveKey] += 1
+            feedHitData.cacheList[-1]['invoke'][saveKey] += 1.0
     return data
 
 def saveDictionary(filename,dictionary):
