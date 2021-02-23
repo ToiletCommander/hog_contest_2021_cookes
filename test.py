@@ -38,7 +38,7 @@ def test(strategy0, strategy1, score0 = 0, score1 = 0, goal = 100, startWho = 0,
                     dice = eight_sided_dice
                 
                 if strategy0 == final_strategy_train.final_strategy and not(final_strategy_train.final_strategy.producing_actual_result):
-                        final_strategy_train.feedHitData(turnNum,overallTurnNum,score0,score1,1.0)
+                        final_strategy_train.feedHitData(False,turnNum,overallTurnNum,score0,score1,1.0)
 
                 final_strategy_train.MATCH_CURRENT_TURN_NUM = turnNum
                 final_strategy_train.MATCH_LAST_EXTRA = turnNum>=1
@@ -81,7 +81,7 @@ def test(strategy0, strategy1, score0 = 0, score1 = 0, goal = 100, startWho = 0,
                     dice = eight_sided_dice
 
                 if strategy1 == final_strategy_train.final_strategy and not(final_strategy_train.final_strategy.producing_actual_result):
-                        final_strategy_train.feedHitData(turnNum,overallTurnNum,score1,score0,1.0)
+                        final_strategy_train.feedHitData(False,turnNum,overallTurnNum,score1,score0,1.0)
 
                 final_strategy_train.MATCH_CURRENT_TURN_NUM = turnNum
                 final_strategy_train.MATCH_LAST_EXTRA = turnNum >= 1
@@ -148,14 +148,16 @@ def calculateWinRateOfStrat0(strategy0, strategy1, score0 = 0, score1 = 0, goal 
         diceSide = 8
     
 
-    if canCache and strategy0 == final_strategy_train.final_strategy and not(final_strategy_train.final_strategy.producing_actual_result):
-        final_strategy_train.startHitDataCache()
+    if strategy0 == final_strategy_train.final_strategy and not(final_strategy_train.final_strategy.producing_actual_result):
+        if canCache:
+            final_strategy_train.startHitDataCache()
+        
         if(fitInNotTrainedHit):
             currentKey = (score0, score1)
             if (currentKey in calculateWinRateOfStrat0.fitInLists):
-                final_strategy_train.feedHitData(currentTurn,overallTurn,score0,score1,chance)
+                final_strategy_train.feedHitData(canCache,currentTurn,overallTurn,score0,score1,chance)
         else:
-            final_strategy_train.feedHitData(currentTurn,overallTurn,score0,score1,chance)
+            final_strategy_train.feedHitData(canCache,currentTurn,overallTurn,score0,score1,chance)
         
 
     final_strategy_train.MATCH_CURRENT_TURN_NUM = currentTurn
@@ -189,8 +191,8 @@ def calculateWinRateOfStrat0(strategy0, strategy1, score0 = 0, score1 = 0, goal 
     if (canCache):
         resultPair = []
         if strategy0 == final_strategy_train.final_strategy and not(final_strategy_train.final_strategy.producing_actual_result):
-            hitDataCache = final_strategy_train.endHitDataCache()
-            resultPair = [totalPossibility,hitDataCache,1]
+            hitDataCache = final_strategy_train.endHitDataCache(saveKey)
+            resultPair = [totalPossibility,hitDataCache,1,1]
         else:
             resultPair = [totalPossibility]
         calculateWinRateOfStrat0.result_dict[saveKey] = resultPair

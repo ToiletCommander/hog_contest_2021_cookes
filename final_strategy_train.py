@@ -238,65 +238,69 @@ def isHitKey(selfScore, opponentScore):
     hitKey = (selfScore, opponentScore)
     return hitKey in getWinningChance.turn_hit_dict.keys()
 
-def feedHitDataIfNotPresent(turnNum, overallTurnNum, selfScore, opponentScore, occurencePossibility = 1.0):
-    if not(isHitKey(selfScore,opponentScore)):
-        feedHitData(turnNum,overallTurnNum,selfScore, opponentScore, occurencePossibility)
-
-def feedHitData(turnNum, overallTurnNum, selfScore, opponentScore, occurencePossibility = 1.0):
+def feedHitData(cache, turnNum, overallTurnNum, selfScore, opponentScore, occurencePossibility = 1.0):
     hitKey = (selfScore, opponentScore)
     saveKey = (turnNum >= 1, overallTurnNum % 8)
-    
-    cacheValue = (hitKey, saveKey)
-    cacheListLen = len(feedHitData.cacheList)
 
-    if cacheListLen > 0:
-        if cacheValue in feedHitData.cacheList[-1].keys():
-            feedHitData.cacheList[-1][cacheValue] += occurencePossibility
+    if not(cache):
+        if not(hitKey in getWinningChance.turn_hit_dict.keys()):
+            getWinningChance.turn_hit_dict[hitKey] = {-1:0.0} #-1 means total
+        if not(saveKey in getWinningChance.turn_hit_dict[hitKey].keys()):
+            getWinningChance.turn_hit_dict[hitKey][saveKey] = occurencePossibility
+            getWinningChance.turn_hit_dict[hitKey][-1] += occurencePossibility
         else:
-            feedHitData.cacheList[-1][cacheValue] = occurencePossibility
-    
-    if not(hitKey in getWinningChance.turn_hit_dict.keys()):
-        getWinningChance.turn_hit_dict[hitKey] = {-1:0.0} #-1 means total
-    if not(saveKey in getWinningChance.turn_hit_dict[hitKey].keys()):
-        getWinningChance.turn_hit_dict[hitKey][saveKey] = occurencePossibility
-        getWinningChance.turn_hit_dict[hitKey][-1] += occurencePossibility
+            getWinningChance.turn_hit_dict[hitKey][saveKey] += occurencePossibility
+            getWinningChance.turn_hit_dict[hitKey][-1] += occurencePossibility
     else:
-        getWinningChance.turn_hit_dict[hitKey][saveKey] += occurencePossibility
-        getWinningChance.turn_hit_dict[hitKey][-1] += occurencePossibility
+        cacheValue = (hitKey, saveKey)
+
+        if len(feedHitData.cacheList) > 0:
+            if cacheValue in feedHitData.cacheList[-1].keys():
+                feedHitData.cacheList[-1][cacheValue] += occurencePossibility
+            else:
+                feedHitData.cacheList[-1][cacheValue] = occurencePossibility
 
 feedHitData.cacheList = []
 
 def applyHitCacheData(cacheDataList):
     #resultPair = (totalPossibility,hitDataCache)
-    def invokeCaches(cacheData,cInvokeNum = 1, rLevel = 0):
-        if rLevel > 0:
-            for cCacheValue, cPossibility in cacheData.items():
-                if cCacheValue == 'invoke':
-                    continue
-                hitKey = cCacheValue[0]
-                saveKey = cCacheValue[1]
-                occurencePossibility = cPossibility * cInvokeNum
-                if not(hitKey in getWinningChance.turn_hit_dict.keys()):
-                    getWinningChance.turn_hit_dict[hitKey] = {-1:0.0} #-1 means total
-                if not(saveKey in getWinningChance.turn_hit_dict[hitKey].keys()):
-                    getWinningChance.turn_hit_dict[hitKey][saveKey] = occurencePossibility
-                    getWinningChance.turn_hit_dict[hitKey][-1] += occurencePossibility
-                else:
-                    getWinningChance.turn_hit_dict[hitKey][saveKey] += occurencePossibility
-                    getWinningChance.turn_hit_dict[hitKey][-1] += occurencePossibility
+    def invokeCaches(cacheData,cInvokeNum = 1):
+        if cInvokeNum == 0:
+            return
+        
+        if DEBUG_ON:
+            print(cInvokeNum)
+        
+        for cCacheValue, cPossibility in cacheData.items():
+            if cCacheValue == 'invoke':
+                continue
+            hitKey = cCacheValue[0]
+            saveKey = cCacheValue[1]
+            occurencePossibility = cPossibility * cInvokeNum
+            if not(hitKey in getWinningChance.turn_hit_dict.keys()):
+                getWinningChance.turn_hit_dict[hitKey] = {-1:0.0} #-1 means total
+            if not(saveKey in getWinningChance.turn_hit_dict[hitKey].keys()):
+                getWinningChance.turn_hit_dict[hitKey][saveKey] = occurencePossibility
+                getWinningChance.turn_hit_dict[hitKey][-1] += occurencePossibility
+            else:
+                getWinningChance.turn_hit_dict[hitKey][saveKey] += occurencePossibility
+                getWinningChance.turn_hit_dict[hitKey][-1] += occurencePossibility
    
     def resolveInvokes(chanceCacheData,cInvokeNum = 1):
         cacheData = chanceCacheData[1]
         currentCalledTime = chanceCacheData[2]
 
-        invokeInCacheData = 'invoke' in cacheData.keys()
+        invokeInCacheData = 'invoke' in cacheData.keys() and currentCalledTime > 0
 
         if invokeInCacheData:
             invokeList = cacheData['invoke']
             for resultKey, invokeNum in invokeList.items():
-                cacheDataList[resultKey][2] += invokeNum*currentCalledTime
+                numToAdd = invokeNum*currentCalledTime
+                cacheDataList[resultKey][2] += numToAdd
+                cacheDataList[resultKey][3] += numToAdd
         chanceCacheData[2] = 0
-        return invokeInCacheData and currentCalledTime > 0
+
+        return invokeInCacheData
         
     
     cacheDataLength = len(cacheDataList)
@@ -323,7 +327,7 @@ def applyHitCacheData(cacheDataList):
     for saveKey, chanceCacheData in cacheDataList.items():
         print('invoking', counter, '/', cacheDataLength)
         if len(chanceCacheData) > 1:
-            invokeCaches(chanceCacheData[1],chanceCacheData[2],0)
+            invokeCaches(chanceCacheData[1],chanceCacheData[3])
         counter+=1
         
 
@@ -331,39 +335,26 @@ def applyHitCacheData(cacheDataList):
 
 
 def addHitCacheData(saveKey):
-    cacheListLen = len(feedHitData.cacheList)
-    cacheValue = 'invoke'
-
-    if cacheListLen > 0:
-        if not(cacheValue in feedHitData.cacheList[-1].keys()):
-            feedHitData.cacheList[-1][cacheValue] = {}
-        if not(saveKey in feedHitData.cacheList[-1][cacheValue].keys()):
-            feedHitData.cacheList[-1][cacheValue][saveKey] = 1
+    if len(feedHitData.cacheList) > 0:
+        if not('invoke' in feedHitData.cacheList[-1].keys()):
+            feedHitData.cacheList[-1]['invoke'] = {}
+        if not(saveKey in feedHitData.cacheList[-1]['invoke'].keys()):
+            feedHitData.cacheList[-1]['invoke'][saveKey] = 1
         else:
-            feedHitData.cacheList[-1][cacheValue][saveKey] += 1
+            feedHitData.cacheList[-1]['invoke'][saveKey] += 1
 
 def startHitDataCache():
     feedHitData.cacheList.append({})
 
-def endHitDataCache():
+def endHitDataCache(saveKey):
     data = feedHitData.cacheList.pop()
     if len(feedHitData.cacheList) > 0:
-        for cacheValue, occurencePossibility in data.items():
-            if cacheValue != 'invoke':
-                if cacheValue in feedHitData.cacheList[-1].keys():
-                    feedHitData.cacheList[-1][cacheValue] += occurencePossibility
-                else:
-                    feedHitData.cacheList[-1][cacheValue] = occurencePossibility
-            else:
-                invokeList = occurencePossibility
-                for saveKey, invokeNumber in invokeList.items():
-                    if not('invoke' in feedHitData.cacheList[-1].keys()):
-                        feedHitData.cacheList[-1]['invoke'] = {}
-                    if not(saveKey in feedHitData.cacheList[-1]['invoke'].keys()):
-                        feedHitData.cacheList[-1]['invoke'][saveKey] = invokeNumber
-                    else:
-                        feedHitData.cacheList[-1]['invoke'][saveKey] += invokeNumber
-    
+        if not('invoke' in feedHitData.cacheList[-1].keys()):
+            feedHitData.cacheList[-1]['invoke'] = {}
+        if not(saveKey in feedHitData.cacheList[-1]['invoke'].keys()):
+            feedHitData.cacheList[-1]['invoke'][saveKey] = 1
+        else:
+            feedHitData.cacheList[-1]['invoke'][saveKey] += 1
     return data
 
 def saveDictionary(filename,dictionary):
