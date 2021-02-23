@@ -18,6 +18,7 @@ PLAYER_NAME = submissions.SUBMIT_NAME
 
 MATCH_LAST_EXTRA = False
 MATCH_CURRENT_TURN_NUM = 0
+MATCH_OVERALL_TURN_NUM = 0
 
 def getDiceResults(numRoll, diceSide, previousSum = 0, isOne = False):
     sumItems = 0
@@ -137,13 +138,13 @@ def predictScoreIncreasePossibilities(num_rolls, opponent_score, diceSide = 6):
 
 predictScoreIncreasePossibilities.possibilities = {}
 
-def getWinningChance(currentPlayerLastTimeExtra, numToRoll, selfScore, opponentScore, targetScore, turnNum = 0, currentLevel = 0, USE_HIT = False):
-    def getWinningChanceForSpecificScoreIncrease(nScore, tNum, cpLastTimeExtra):
+def getWinningChance(currentPlayerLastTimeExtra, numToRoll, selfScore, opponentScore, targetScore, overallTurnNum = 0, currentLevel = 0, USE_HIT = False):
+    def getWinningChanceForSpecificScoreIncrease(nScore, oTNum, cpLastTimeExtra):
         if(nScore >= targetScore):
             return 1.0
 
         moreBoar = gamecalc.more_boar(nScore,opponentScore)
-        timeTrot = gamecalc.time_trot(tNum,numToRoll,cpLastTimeExtra)
+        timeTrot = gamecalc.time_trot(oTNum,numToRoll,cpLastTimeExtra)
         moreTurn = (moreBoar or timeTrot)
 
         biggestChance = 0.0
@@ -154,29 +155,29 @@ def getWinningChance(currentPlayerLastTimeExtra, numToRoll, selfScore, opponentS
         
         if moreTurn:
             for i in range(0,numChance+1):
-                currentChance = getWinningChance(True,i,nScore,opponentScore,targetScore,tNum+1,currentLevel+1,False)
+                currentChance = getWinningChance(True,i,nScore,opponentScore,targetScore,oTNum+1,currentLevel+1,False)
                 if(currentChance > biggestChance):
                     biggestChance = currentChance
                     biggestChanceThrow = i
             chance = biggestChance
         else:
             for i in range(0,numChance+1):
-                currentChance = getWinningChance(False,i,opponentScore,nScore,targetScore,0,currentLevel+1,False)
+                currentChance = getWinningChance(False,i,opponentScore,nScore,targetScore,oTNum+1,currentLevel+1,False)
                 if(currentChance > biggestChance):
                     biggestChance = currentChance
                     biggestChanceThrow = i
             biggestChance = 1.0 - biggestChance
         return biggestChance
 
-    def winningChanceForDicePossibility(tNum, cpLastTimeExtra):
-        diceSideNum = 6 if tNum == 0 else 8
+    def winningChanceForDicePossibility(oTNum, cpLastTimeExtra):
+        diceSideNum = 6 if not(cpLastTimeExtra) else 8
         
         scoreIncreasePossibilities = predictScoreIncreasePossibilities(numToRoll,opponentScore,diceSideNum)
         
         chanceSum = 0
         for cScoreIncrease, cPossibility in scoreIncreasePossibilities.items():
-            newScore = selfScore+cScoreIncrease
-            specificWinningChance = getWinningChanceForSpecificScoreIncrease(newScore,tNum,cpLastTimeExtra)
+            newScore = selfScore + cScoreIncrease
+            specificWinningChance = getWinningChanceForSpecificScoreIncrease(newScore,oTNum,cpLastTimeExtra)
             chanceSum += cPossibility * specificWinningChance
         return max(min(chanceSum,1.0),0.0)
 
@@ -185,9 +186,9 @@ def getWinningChance(currentPlayerLastTimeExtra, numToRoll, selfScore, opponentS
     
     returnVal = 0
 
-    saveKey = (USE_HIT,numToRoll,selfScore,opponentScore,targetScore,currentPlayerLastTimeExtra,turnNum)
+    saveKey = (USE_HIT,numToRoll,selfScore,opponentScore,targetScore,overallTurnNum % 8)
     if not(USE_HIT):
-        thisTimeItCanTrot = gamecalc.time_trot(turnNum,numToRoll,currentPlayerLastTimeExtra)
+        thisTimeItCanTrot = gamecalc.time_trot(overallTurnNum,numToRoll,currentPlayerLastTimeExtra)
         
         saveKey = (USE_HIT,thisTimeItCanTrot,numToRoll,selfScore,opponentScore,targetScore)
         
@@ -197,7 +198,7 @@ def getWinningChance(currentPlayerLastTimeExtra, numToRoll, selfScore, opponentS
                 print('wc(',selfScore,opponentScore,numToRoll,') = ',returnVal)
             return returnVal
         
-        returnVal = winningChanceForDicePossibility(turnNum,currentPlayerLastTimeExtra)
+        returnVal = winningChanceForDicePossibility(overallTurnNum, currentPlayerLastTimeExtra)
         
     else:
         saveKey = (USE_HIT,numToRoll,selfScore,opponentScore,targetScore)
@@ -208,15 +209,17 @@ def getWinningChance(currentPlayerLastTimeExtra, numToRoll, selfScore, opponentS
             return returnVal
         
         hitKey = (selfScore,opponentScore)
-        possibilityDict = getWinningChance.turn_hit_dict[hitKey] if hitKey in getWinningChance.turn_hit_dict.keys() else {0:1,-1:1}
+        possibilityDict = getWinningChance.turn_hit_dict[hitKey] if hitKey in getWinningChance.turn_hit_dict.keys() else {(0,0):1,-1:1}
         total = possibilityDict[-1]
+        returnVal = 0
         for cKey, cVal in possibilityDict.items():
             if cKey == -1:
                 continue
-            currentTurnNum = cKey
+            currentIsTurnAtLeast1 = cKey[0]
+            currentOverallTurnNum = cKey[1]
             currentTurnOccurence = cVal / total
-            currentLastExtra = currentTurnNum >= 1
-            returnVal += currentTurnOccurence * winningChanceForDicePossibility(currentTurnNum,currentLastExtra)
+            returnVal += currentTurnOccurence * winningChanceForDicePossibility(currentOverallTurnNum,currentIsTurnAtLeast1)
+        returnVal = min(1.0,max(returnVal,0.0))
     
     if DEBUG_ON and not(USE_HIT) and (currentLevel == 0 or EXCESS_DEBUG):
         print('wc(',selfScore,opponentScore,numToRoll,') = ',returnVal)
@@ -232,16 +235,17 @@ getWinningChance.result_dict = {}
 getWinningChance.hit_result_dict = {}
 getWinningChance.turn_hit_dict = {}
 
-def feedHitData(turnNum, selfScore, opponentScore, occurencePossibility = 1.0):
+def feedHitData(turnNum, overallTurnNum, selfScore, opponentScore, occurencePossibility = 1.0):
     hitKey = (selfScore, opponentScore)
+    saveKey = (turnNum >= 1, overallTurnNum % 8)
 
     if not(hitKey in getWinningChance.turn_hit_dict.keys()):
         getWinningChance.turn_hit_dict[hitKey] = {-1:0.0} #-1 means total
-    if not(turnNum in getWinningChance.turn_hit_dict[hitKey].keys()):
-        getWinningChance.turn_hit_dict[hitKey][turnNum] = occurencePossibility
+    if not(saveKey in getWinningChance.turn_hit_dict[hitKey].keys()):
+        getWinningChance.turn_hit_dict[hitKey][saveKey] = occurencePossibility
         getWinningChance.turn_hit_dict[hitKey][-1] += occurencePossibility
     else:
-        getWinningChance.turn_hit_dict[hitKey][turnNum] += occurencePossibility
+        getWinningChance.turn_hit_dict[hitKey][saveKey] += occurencePossibility
         getWinningChance.turn_hit_dict[hitKey][-1] += occurencePossibility
 
 def saveDictionary(filename,dictionary):
@@ -292,7 +296,7 @@ def make_winning_chance(score0,score1):
 		return getWinningChance(False,False,numToRoll,score0,score1,100,0,0,0)
 	return func
 
-def strategy_to_play(turnNum, selfScore, opponentScore, canTimeTrot, USE_HIT):
+def strategy_to_play(turnNum, overallTurnNum, selfScore, opponentScore, lastExtraTurn, USE_HIT):
     """This is the function to implement final strategy, it gives you all possible informations about the current turn
     turnNum = number of consecutive turn the player is playing, starting from 0
     canTimeTrot = if the player can use the time trot strategy in this turn
@@ -311,7 +315,7 @@ def strategy_to_play(turnNum, selfScore, opponentScore, canTimeTrot, USE_HIT):
     """
 
     for i in range(0,11):
-        currentWinningRate = getWinningChance(not(canTimeTrot),i,selfScore,opponentScore,targetScore,turnNum,0,USE_HIT)
+        currentWinningRate = getWinningChance(lastExtraTurn,i,selfScore,opponentScore,targetScore,overallTurnNum,0,USE_HIT)
         winningChances.append(currentWinningRate)
         if(currentWinningRate > biggestWinningRate):
             biggestWinningRate = currentWinningRate
@@ -345,10 +349,9 @@ def more_boar_strategy(score, opponent_score, cutoff=8, num_rolls=6):
 
 def final_strategy(score, opponent_score):
     turnNumber = MATCH_CURRENT_TURN_NUM
-    canTrot = not(MATCH_LAST_EXTRA)
 
     #determine strategy to play
-    strategyReturn = strategy_to_play(turnNumber,score,opponent_score,canTrot,final_strategy.producing_actual_result)
+    strategyReturn = strategy_to_play(turnNumber,MATCH_OVERALL_TURN_NUM,score,opponent_score,MATCH_LAST_EXTRA,final_strategy.producing_actual_result)
     
     #decode strategyReturn
     numToRollDice = strategyReturn
@@ -359,10 +362,9 @@ final_strategy.producing_actual_result = False
 
 def final_strategy_hist(score, opponent_score):
     turnNumber = MATCH_CURRENT_TURN_NUM
-    canTrot = not(MATCH_LAST_EXTRA)
 
     #determine strategy to play
-    strategyReturn = strategy_to_play(turnNumber,score,opponent_score,canTrot,False)
+    strategyReturn = strategy_to_play(turnNumber,MATCH_OVERALL_TURN_NUM,score,opponent_score,MATCH_LAST_EXTRA,False)
     
     #decode strategyReturn
     numToRollDice = strategyReturn

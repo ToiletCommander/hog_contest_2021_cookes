@@ -142,4 +142,4 @@ def more_boar(player_score, opponent_score):
     # END PROBLEM 4
 
 def time_trot(turn, numRolls, lastExtra):
-    return turn % 8 == numRolls if not(lastExtra) else False
+    return (turn % 8 == numRolls and not(lastExtra))
