@@ -263,7 +263,8 @@ def feedHitData(cache, turnNum, overallTurnNum, selfScore, opponentScore, occure
 feedHitData.cacheList = []
 
 def applyHitCacheData(cacheDataList):
-    #resultPair = (totalPossibility,hitDataCache)
+    #resultPair = (winRate,chance,hitDataCache,callNumber,invokeNumber)
+    #hitDataCache = {(hitKey, saveKey):possibility}
     def invokeCaches(cacheData,cInvokeNum):
         for cCacheValue, cPossibility in cacheData.items():
             if cCacheValue == 'invoke':
@@ -335,13 +336,11 @@ def addHitCacheData(saveKey,factor):
             feedHitData.cacheList[-1]['invoke'][saveKey] = factor
         else:
             feedHitData.cacheList[-1]['invoke'][saveKey] += factor
-    else:
-        assert(False)
 
-def startHitDataCache():
+def startHitDataCache(rLevel):
     feedHitData.cacheList.append({})
 
-def endHitDataCache(saveKey):
+def endHitDataCache(saveKey,rLevel):
     data = feedHitData.cacheList.pop(-1)
     if len(feedHitData.cacheList) and len(data) > 0:
         if not('invoke' in feedHitData.cacheList[-1].keys()):
