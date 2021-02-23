@@ -268,8 +268,7 @@ def applyHitCacheData(cacheDataList):
         if cInvokeNum == 0:
             return
         
-        if DEBUG_ON:
-            print(cInvokeNum)
+        
         
         for cCacheValue, cPossibility in cacheData.items():
             if cCacheValue == 'invoke':
@@ -277,6 +276,8 @@ def applyHitCacheData(cacheDataList):
             hitKey = cCacheValue[0]
             saveKey = cCacheValue[1]
             occurencePossibility = cPossibility * cInvokeNum
+            if DEBUG_ON:
+                print(occurencePossibility)
             if not(hitKey in getWinningChance.turn_hit_dict.keys()):
                 getWinningChance.turn_hit_dict[hitKey] = {-1:0.0} #-1 means total
             if not(saveKey in getWinningChance.turn_hit_dict[hitKey].keys()):
@@ -330,10 +331,6 @@ def applyHitCacheData(cacheDataList):
             invokeCaches(chanceCacheData[1],chanceCacheData[3])
         counter+=1
         
-
-
-
-
 def addHitCacheData(saveKey):
     if len(feedHitData.cacheList) > 0:
         if not('invoke' in feedHitData.cacheList[-1].keys()):
@@ -342,13 +339,15 @@ def addHitCacheData(saveKey):
             feedHitData.cacheList[-1]['invoke'][saveKey] = 1
         else:
             feedHitData.cacheList[-1]['invoke'][saveKey] += 1
+    else:
+        assert(False)
 
 def startHitDataCache():
     feedHitData.cacheList.append({})
 
 def endHitDataCache(saveKey):
-    data = feedHitData.cacheList.pop()
-    if len(feedHitData.cacheList) > 0:
+    data = feedHitData.cacheList.pop(-1)
+    if len(feedHitData.cacheList) and len(data) > 0:
         if not('invoke' in feedHitData.cacheList[-1].keys()):
             feedHitData.cacheList[-1]['invoke'] = {}
         if not(saveKey in feedHitData.cacheList[-1]['invoke'].keys()):
@@ -371,10 +370,10 @@ def loadDictionary(filename):
 def saveStrategy(filename,strategyToSave):
     strategyDict = {}
     for i in range(0,100):
+        if DEBUG_ON:
+            print("saving strategy step",i,'/',99)
         for j in range(0,100):
             key = (i,j)
-            if DEBUG_ON:
-                print("saving strategy step",key)
             strategyDict[key] = strategyToSave(i,j)
     saveDictionary(filename,strategyDict)
 
