@@ -111,7 +111,7 @@ def test(strategy0, strategy1, score0 = 0, score1 = 0, goal = 100, startWho = 0,
     # END PROBLEM 6
     return score0, score1
 
-def calculateWinRateOfStrat0(strategy0, strategy1, score0 = 0, score1 = 0, goal = 100, currentWho = 0, canCacheStrat0 = True, canCacheStrat1 = True, currentTurn = 0, overallTurn = 0, rLevel = 0, Flipped = False, chance = 1.0):
+def calculateWinRateOfStrat0(strategy0, strategy1, score0 = 0, score1 = 0, goal = 100, currentWho = 0, canCache = True, fitInNotTrainedHit = True, currentTurn = 0, overallTurn = 0, rLevel = 0, Flipped = False, chance = 100000.0):
     if score1 >= goal:
         return 0.0
     elif score0 >= goal:
@@ -119,13 +119,20 @@ def calculateWinRateOfStrat0(strategy0, strategy1, score0 = 0, score1 = 0, goal 
     
     
     if currentWho == 1:
-        return 1.0 - calculateWinRateOfStrat0(strategy1, strategy0, score1, score0, goal, 0, canCacheStrat1, canCacheStrat0, currentTurn, overallTurn, rLevel, not(Flipped), chance)
+        return 1.0 - calculateWinRateOfStrat0(strategy1, strategy0, score1, score0, goal, 0, canCache, fitInNotTrainedHit, currentTurn, overallTurn, rLevel, not(Flipped), chance)
     if rLevel == 0:
         calculateWinRateOfStrat0.result_dict = {}
+        calculateWinRateOfStrat0.matchTotalChance = chance
+        calculateWinRateOfStrat0.matchCurrentChance = 0
+        if fitInNotTrainedHit:
+            calculateWinRateOfStrat0.fitInLists = final_strategy_train.getListNotHit()
+        else:
+            calculateWinRateOfStrat0.fitInLists = []
 
     saveKey = (Flipped, score0, score1, currentTurn >= 1,overallTurn % 8)
     
-    if saveKey in calculateWinRateOfStrat0.result_dict.keys() and canCacheStrat0:
+    if canCache and saveKey in calculateWinRateOfStrat0.result_dict.keys():
+        calculateWinRateOfStrat0.matchCurrentChance += chance
         savedPair = calculateWinRateOfStrat0.result_dict[saveKey]
         if strategy0 == final_strategy_train.final_strategy and not(final_strategy_train.final_strategy.producing_actual_result):
             hitCacheData = savedPair[1]
@@ -143,9 +150,14 @@ def calculateWinRateOfStrat0(strategy0, strategy1, score0 = 0, score1 = 0, goal 
         diceSide = 8
     
 
-    if strategy0 == final_strategy_train.final_strategy and not(final_strategy_train.final_strategy.producing_actual_result) and canCacheStrat0:
+    if strategy0 == final_strategy_train.final_strategy and not(final_strategy_train.final_strategy.producing_actual_result) and canCache and rLevel > 0:
         final_strategy_train.startHitDataCache()
-        final_strategy_train.feedHitData(currentTurn,overallTurn,score0,score1,chance)
+        if(fitInNotTrainedHit):
+            currentKey = (score0, score1)
+            if (currentKey in calculateWinRateOfStrat0.fitInLists):
+                final_strategy_train.feedHitData(currentTurn,overallTurn,score0,score1,chance)
+        else:
+            final_strategy_train.feedHitData(currentTurn,overallTurn,score0,score1,chance)
         
 
     final_strategy_train.MATCH_CURRENT_TURN_NUM = currentTurn
@@ -166,16 +178,21 @@ def calculateWinRateOfStrat0(strategy0, strategy1, score0 = 0, score1 = 0, goal 
 
         isPlayerPlaying = isMoreBoar or isTimeTrot
         if isPlayerPlaying:
-            totalPossibility += cPossibility * calculateWinRateOfStrat0(strategy0,strategy1,newScore0,score1,goal,0,canCacheStrat0,canCacheStrat1,currentTurn+1,overallTurn+1,rLevel+1,Flipped,currentIterationTotalPossibility)
+            totalPossibility += cPossibility * calculateWinRateOfStrat0(strategy0,strategy1,newScore0,score1,goal,0,canCache,fitInNotTrainedHit,currentTurn+1,overallTurn+1,rLevel+1,Flipped,currentIterationTotalPossibility)
         else:
-            totalPossibility += cPossibility * (1.0 - calculateWinRateOfStrat0(strategy1,strategy0,score1,newScore0,goal,0,canCacheStrat1,canCacheStrat0,0,overallTurn+1,rLevel+1,not(Flipped),currentIterationTotalPossibility))
+            totalPossibility += cPossibility * (1.0 - calculateWinRateOfStrat0(strategy1,strategy0,score1,newScore0,goal,0,canCache,fitInNotTrainedHit,0,overallTurn+1,rLevel+1,not(Flipped),currentIterationTotalPossibility))
 
     totalPossibility = max(min(totalPossibility,1.0),0.0)
 
+    calculateWinRateOfStrat0.matchCurrentChance += chance
+
+    if final_strategy_train.DEBUG_ON and rLevel <= 25:
+        print('current progress', calculateWinRateOfStrat0.matchCurrentChance / calculateWinRateOfStrat0.matchTotalChance * 100.0)
+
     if rLevel != 0: #and not(saveKey in calculateWinRateOfStrat0.result_dict.keys()):
-        if (canCacheStrat0):
+        if (canCache):
             resultPair = None
-            if strategy0 == final_strategy_train.final_strategy and not(final_strategy_train.final_strategy.producing_actual_result):
+            if strategy0 == final_strategy_train.final_strategy and not(final_strategy_train.final_strategy.producing_actual_result) and rLevel > 0:
                 resultPair = (totalPossibility,final_strategy_train.endHitDataCache())
             else:
                 resultPair = (totalPossibility,)
@@ -184,6 +201,9 @@ def calculateWinRateOfStrat0(strategy0, strategy1, score0 = 0, score1 = 0, goal 
     return totalPossibility
 
 calculateWinRateOfStrat0.result_dict = {}
+calculateWinRateOfStrat0.matchTotalChance = 0
+calculateWinRateOfStrat0.matchCurrentChance = 0
+calculateWinRateOfStrat0.fitInLists = []
 
 def tests(baseStrategy, strategy, size, canPrint = True, resultPrint = True):
     if resultPrint:
@@ -202,12 +222,19 @@ def tests(baseStrategy, strategy, size, canPrint = True, resultPrint = True):
         print("winRate of", strategy.__name__, "winning", baseStrategy.__name__, countWinNum,'/',size, '=', (countWinNum / size))
     return countWinNum / size
 
-def predicts(baseStrategy, strategy, cache = True, resultPrint = True):
+def predicts(baseStrategy, strategy, cache = True, fitInData = True, training = True, resultPrint = True):
     if resultPrint:
         print("predicting win rate of",strategy.__name__,"against",baseStrategy.__name__)
 
-    predictResult0 = calculateWinRateOfStrat0(strategy,baseStrategy,0,0,100,0,cache,cache)
-    predictResult1 = calculateWinRateOfStrat0(strategy,baseStrategy,0,0,100,1,cache,cache)
+    if not(training):
+        final_strategy_train.final_strategy.producing_actual_result = True
+    else:
+        final_strategy_train.final_strategy.producing_actual_result = False
+        if(fitInData and len(final_strategy_train.getListNotHit()) == 0):
+            return
+
+    predictResult0 = calculateWinRateOfStrat0(strategy,baseStrategy,0,0,100,0,cache,fitInData)
+    predictResult1 = calculateWinRateOfStrat0(strategy,baseStrategy,0,0,100,1,cache,fitInData)
     predictResult = (predictResult0 + predictResult1) / 2.0
     if resultPrint:
         print("winRate of", strategy.__name__, "winning", baseStrategy.__name__, predictResult0, "if",strategy.__name__,"were to play first")

@@ -138,6 +138,8 @@ def predictScoreIncreasePossibilities(num_rolls, opponent_score, diceSide = 6):
 
 predictScoreIncreasePossibilities.possibilities = {}
 
+
+
 def getWinningChance(currentPlayerLastTimeExtra, numToRoll, selfScore, opponentScore, targetScore, overallTurnNum = 0, currentLevel = 0, USE_HIT = False):
     def getWinningChanceForSpecificScoreIncrease(nScore, oTNum, cpLastTimeExtra):
         if(nScore >= targetScore):
@@ -232,15 +234,27 @@ getWinningChance.result_dict = {}
 getWinningChance.hit_result_dict = {}
 getWinningChance.turn_hit_dict = {}
 
+def isHitKey(selfScore, opponentScore):
+    hitKey = (selfScore, opponentScore)
+    return hitKey in getWinningChance.turn_hit_dict.keys()
+
+def feedHitDataIfNotPresent(turnNum, overallTurnNum, selfScore, opponentScore, occurencePossibility = 1.0):
+    if not(isHitKey(selfScore,opponentScore)):
+        feedHitData(turnNum,overallTurnNum,selfScore, opponentScore, occurencePossibility)
+
 def feedHitData(turnNum, overallTurnNum, selfScore, opponentScore, occurencePossibility = 1.0):
     hitKey = (selfScore, opponentScore)
     saveKey = (turnNum >= 1, overallTurnNum % 8)
     
-    cacheValue = (hitKey, saveKey, occurencePossibility)
+    cacheValue = (hitKey, saveKey)
     cacheListLen = len(feedHitData.cacheList)
-    for i in range(cacheListLen):
-        feedHitData.cacheList[i].append(cacheValue)
 
+    for i in range(cacheListLen):
+        if cacheValue in feedHitData.cacheList[i].keys():
+            feedHitData.cacheList[i][cacheValue] += occurencePossibility
+        else:
+            feedHitData.cacheList[i][cacheValue] = occurencePossibility
+    
     if not(hitKey in getWinningChance.turn_hit_dict.keys()):
         getWinningChance.turn_hit_dict[hitKey] = {-1:0.0} #-1 means total
     if not(saveKey in getWinningChance.turn_hit_dict[hitKey].keys()):
@@ -253,24 +267,33 @@ def feedHitData(turnNum, overallTurnNum, selfScore, opponentScore, occurencePoss
 feedHitData.cacheList = []
 
 def applyHitCacheData(cacheDataList):
-    for cacheValue in cacheDataList:
+    cacheListLen = len(feedHitData.cacheList)
+    
+    for cacheValue, occurencePossibility in cacheDataList.items():
         hitKey = cacheValue[0]
         saveKey = cacheValue[1]
-        occurencePossibility = cacheValue[2]
-    if not(hitKey in getWinningChance.turn_hit_dict.keys()):
-        getWinningChance.turn_hit_dict[hitKey] = {-1:0.0} #-1 means total
-    if not(saveKey in getWinningChance.turn_hit_dict[hitKey].keys()):
-        getWinningChance.turn_hit_dict[hitKey][saveKey] = occurencePossibility
-        getWinningChance.turn_hit_dict[hitKey][-1] += occurencePossibility
-    else:
-        getWinningChance.turn_hit_dict[hitKey][saveKey] += occurencePossibility
-        getWinningChance.turn_hit_dict[hitKey][-1] += occurencePossibility
+        
+        for i in range(cacheListLen):
+            if cacheValue in feedHitData.cacheList[i].keys():
+                feedHitData.cacheList[i][cacheValue] += occurencePossibility
+            else:
+                feedHitData.cacheList[i][cacheValue] = occurencePossibility
+        
+        if not(hitKey in getWinningChance.turn_hit_dict.keys()):
+            getWinningChance.turn_hit_dict[hitKey] = {-1:0.0} #-1 means total
+        if not(saveKey in getWinningChance.turn_hit_dict[hitKey].keys()):
+            getWinningChance.turn_hit_dict[hitKey][saveKey] = occurencePossibility
+            getWinningChance.turn_hit_dict[hitKey][-1] += occurencePossibility
+        else:
+            getWinningChance.turn_hit_dict[hitKey][saveKey] += occurencePossibility
+            getWinningChance.turn_hit_dict[hitKey][-1] += occurencePossibility
 
 def startHitDataCache():
-    feedHitData.cacheList.append([])
+    feedHitData.cacheList.append({})
 
 def endHitDataCache():
-    return feedHitData.cacheList.pop()
+    data = feedHitData.cacheList.pop()
+    return data
 
 def saveDictionary(filename,dictionary):
     file = open(filename,"wb")
