@@ -265,11 +265,7 @@ feedHitData.cacheList = []
 def applyHitCacheData(cacheDataList):
     #resultPair = (totalPossibility,hitDataCache)
     def invokeCaches(cacheData,cInvokeNum = 1):
-        if cInvokeNum == 0:
-            return
-        
-        
-        
+        assert(cInvokeNum != 0)
         for cCacheValue, cPossibility in cacheData.items():
             if cCacheValue == 'invoke':
                 continue
@@ -288,8 +284,8 @@ def applyHitCacheData(cacheDataList):
                 getWinningChance.turn_hit_dict[hitKey][-1] += occurencePossibility
    
     def resolveInvokes(chanceCacheData,cInvokeNum = 1):
-        cacheData = chanceCacheData[1]
-        currentCalledTime = chanceCacheData[2]
+        cacheData = chanceCacheData[2]
+        currentCalledTime = chanceCacheData[3]
 
         invokeInCacheData = 'invoke' in cacheData.keys() and currentCalledTime > 0
 
@@ -297,9 +293,9 @@ def applyHitCacheData(cacheDataList):
             invokeList = cacheData['invoke']
             for resultKey, invokeNum in invokeList.items():
                 numToAdd = invokeNum*currentCalledTime
-                cacheDataList[resultKey][2] += numToAdd
                 cacheDataList[resultKey][3] += numToAdd
-        chanceCacheData[2] = 0
+                cacheDataList[resultKey][4] += numToAdd
+        chanceCacheData[3] = 0
 
         return invokeInCacheData
         
@@ -328,17 +324,17 @@ def applyHitCacheData(cacheDataList):
     for saveKey, chanceCacheData in cacheDataList.items():
         print('invoking', counter, '/', cacheDataLength)
         if len(chanceCacheData) > 1:
-            invokeCaches(chanceCacheData[1],chanceCacheData[3])
+            invokeCaches(chanceCacheData[2],chanceCacheData[4])
         counter+=1
         
-def addHitCacheData(saveKey):
+def addHitCacheData(saveKey,factor):
     if len(feedHitData.cacheList) > 0:
         if not('invoke' in feedHitData.cacheList[-1].keys()):
             feedHitData.cacheList[-1]['invoke'] = {}
         if not(saveKey in feedHitData.cacheList[-1]['invoke'].keys()):
-            feedHitData.cacheList[-1]['invoke'][saveKey] = 1
+            feedHitData.cacheList[-1]['invoke'][saveKey] = factor
         else:
-            feedHitData.cacheList[-1]['invoke'][saveKey] += 1
+            feedHitData.cacheList[-1]['invoke'][saveKey] += factor
     else:
         assert(False)
 
