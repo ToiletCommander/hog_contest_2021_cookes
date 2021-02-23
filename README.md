@@ -90,8 +90,8 @@ This turns out initially to not work well because final_strategy was designed to
 - Win Rate(Against 1 Epoch Fair): 0.497628323383721
 - Win Rate(Against 1 Epoch Fair, calculated locally): 0.49862808048268126
 
+2021-2-23 12:06 PM CN Time
+- Seems like I understand one game rule wrong lol
+- Retraining..
 
-20 Epoch(of 10,000 games against optimal, with fair start) 2021-2-13 23:00 PM CN Time
-- Ranked 1
-- Win Rate(Against Optimal, calculated locally):  0.47066184658535537
-- Win Rate(Against Master Hog by RW, Ranked #2): 0.498211448126
+1 Epoch (of 20,000 games against optimal, with fair start) 2021-2-13 12:19 CN Time

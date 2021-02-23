@@ -9,8 +9,6 @@ import math
 VIEW_STEP_BY_STEP = False
 
 def test(strategy0, strategy1, score0 = 0, score1 = 0, goal = 100, startWho = 0, canPrint = True):
-    final_strategy_train.resetFinalStrat()
-    final_strategy_train.resetFinalStratHis()
     who = startWho #math.floor(random.random() * 2.0)  # Who is about to take a turn, 0 (first) or 1 (second)
     eight_sided_dice = diceLib.make_fair_dice(8)
     six_sided = diceLib.make_fair_dice(6)
@@ -22,7 +20,6 @@ def test(strategy0, strategy1, score0 = 0, score1 = 0, goal = 100, startWho = 0,
             isPlayerPlaying = True
             turnNum = 0
             
-            isPreviousTimeTrot = False
             isMoreBoar = False
             isTimeTrot = False
             
@@ -39,14 +36,18 @@ def test(strategy0, strategy1, score0 = 0, score1 = 0, goal = 100, startWho = 0,
                     dice = eight_sided_dice
                 
                 if strategy0 == final_strategy_train.final_strategy and not(final_strategy_train.final_strategy.producing_actual_result):
-                    final_strategy_train.feedHitData(isPreviousTimeTrot,turnNum,score0,score1,1.0)
+                        final_strategy_train.feedHitData(turnNum,score0,score1,1.0)
+
+                final_strategy_train.MATCH_CURRENT_TURN_NUM = turnNum
+                final_strategy_train.MATCH_LAST_EXTRA = turnNum>=1
+                
                 strategyThisRound = strategy0(score0,score1)
                 scoreAdditionThisRound = gamecalc.take_turn(strategyThisRound,score1,dice,goal)
                 score0 += scoreAdditionThisRound
                 isMoreBoar = gamecalc.more_boar(score0,score1)
-                isTimeTrot = gamecalc.time_trot(turnNum,strategyThisRound,isPreviousTimeTrot)
+                isTimeTrot = gamecalc.time_trot(turnNum,strategyThisRound,turnNum>=1)
                 isPlayerPlaying = isMoreBoar or isTimeTrot
-                isPreviousTimeTrot = isTimeTrot
+
                 if canPrint:
                     print("rolling", strategyThisRound, 'with a score increase of',scoreAdditionThisRound)
                     if(isMoreBoar):
@@ -59,8 +60,7 @@ def test(strategy0, strategy1, score0 = 0, score1 = 0, goal = 100, startWho = 0,
         else: #if who == 1
             isPlayerPlaying = True
             turnNum = 0
-            
-            isPreviousTimeTrot = False
+
             isMoreBoar = False
             isTimeTrot = False
             
@@ -75,15 +75,20 @@ def test(strategy0, strategy1, score0 = 0, score1 = 0, goal = 100, startWho = 0,
                     dice = six_sided
                 else:
                     dice = eight_sided_dice
+
                 if strategy1 == final_strategy_train.final_strategy and not(final_strategy_train.final_strategy.producing_actual_result):
-                    final_strategy_train.feedHitData(isPreviousTimeTrot,turnNum,score1,score0,1.0)
+                        final_strategy_train.feedHitData(turnNum,score1,score0,1.0)
+
+                final_strategy_train.MATCH_CURRENT_TURN_NUM = turnNum
+                final_strategy_train.MATCH_LAST_EXTRA = turnNum >= 1
+
                 strategyThisRound = strategy1(score1,score0)
                 scoreAdditionThisRound = gamecalc.take_turn(strategyThisRound,score0,dice,goal)
                 score1 += scoreAdditionThisRound
                 isMoreBoar =  gamecalc.more_boar(score1,score0)
-                isTimeTrot = gamecalc.time_trot(turnNum,strategyThisRound,isPreviousTimeTrot)
+                isTimeTrot = gamecalc.time_trot(turnNum,strategyThisRound,turnNum >= 1)
                 isPlayerPlaying = isMoreBoar or isTimeTrot
-                isPreviousTimeTrot = isTimeTrot
+
                 if canPrint:
                     print("rolling", strategyThisRound, 'with a score increase of',scoreAdditionThisRound)
                     if(isMoreBoar):
@@ -100,22 +105,19 @@ def test(strategy0, strategy1, score0 = 0, score1 = 0, goal = 100, startWho = 0,
     # END PROBLEM 6
     return score0, score1
 
-def calculateWinRateOfStrat0(strategy0, strategy1, score0 = 0, score1 = 0, goal = 100, currentWho = 0, canCacheStrat0 = True, canCacheStrat1 = True, currentTurn = 0, previousTrot = False, rLevel = 0, Flipped = False, chance = 1.0):
+def calculateWinRateOfStrat0(strategy0, strategy1, score0 = 0, score1 = 0, goal = 100, currentWho = 0, canCacheStrat0 = True, canCacheStrat1 = True, currentTurn = 0, rLevel = 0, Flipped = False, chance = 1.0):
     if score1 >= goal:
         return 0.0
     elif score0 >= goal:
         return 1.0
     
-    if rLevel == 0:
-        final_strategy_train.resetFinalStrat()
-        final_strategy_train.resetFinalStratHis()
     
     if currentWho == 1:
-        return 1.0 - calculateWinRateOfStrat0(strategy1, strategy0, score1, score0, goal, 0, canCacheStrat1, canCacheStrat0, currentTurn, previousTrot, rLevel, not(Flipped),chance)
+        return 1.0 - calculateWinRateOfStrat0(strategy1, strategy0, score1, score0, goal, 0, canCacheStrat1, canCacheStrat0, currentTurn, rLevel, not(Flipped),chance)
     if rLevel == 0:
         calculateWinRateOfStrat0.result_dict = {}
 
-    saveKey = (score0,score1,Flipped,currentTurn,previousTrot)
+    saveKey = (score0,score1,Flipped,currentTurn)
     
     if saveKey in calculateWinRateOfStrat0.result_dict.keys():
         return calculateWinRateOfStrat0.result_dict[saveKey]
@@ -131,7 +133,10 @@ def calculateWinRateOfStrat0(strategy0, strategy1, score0 = 0, score1 = 0, goal 
         diceSide = 8
     
     if strategy0 == final_strategy_train.final_strategy and not(final_strategy_train.final_strategy.producing_actual_result):
-        final_strategy_train.feedHitData(previousTrot,currentTurn,score0,score1,chance)
+        final_strategy_train.feedHitData(currentTurn,score0,score1,chance)
+
+    final_strategy_train.MATCH_CURRENT_TURN_NUM = currentTurn
+    final_strategy_train.MATCH_LAST_EXTRA = currentTurn >= 1
 
     numToRollThisRound = strategy0(score0,score1)
 
@@ -141,26 +146,15 @@ def calculateWinRateOfStrat0(strategy0, strategy1, score0 = 0, score1 = 0, goal 
     for cScoreAddition, cPossibility in allPossibleScoreIncreases.items():
         newScore0 = score0 + cScoreAddition
         isMoreBoar = gamecalc.more_boar(newScore0,score1)
-        isTimeTrot = gamecalc.time_trot(currentTurn,numToRollThisRound,previousTrot)
+        isTimeTrot = gamecalc.time_trot(currentTurn,numToRollThisRound,currentTurn >= 1)
         
         currentIterationTotalPossibility = chance * cPossibility
 
         isPlayerPlaying = isMoreBoar or isTimeTrot
         if isPlayerPlaying:
-            totalPossibility += cPossibility * calculateWinRateOfStrat0(strategy0,strategy1,newScore0,score1,goal,0,canCacheStrat0,canCacheStrat1,currentTurn+1,isTimeTrot,rLevel+1,Flipped,currentIterationTotalPossibility)
+            totalPossibility += cPossibility * calculateWinRateOfStrat0(strategy0,strategy1,newScore0,score1,goal,0,canCacheStrat0,canCacheStrat1,currentTurn+1,rLevel+1,Flipped,currentIterationTotalPossibility)
         else:
-            totalPossibility += cPossibility * (1.0 - calculateWinRateOfStrat0(strategy1,strategy0,score1,newScore0,goal,0,canCacheStrat1,canCacheStrat0,0,False,rLevel+1,not(Flipped),currentIterationTotalPossibility))
-        if strategy0 == final_strategy_train.final_strategy:
-            final_strategy_train.final_strategy.last_opponent_score = score1
-            final_strategy_train.final_strategy.last_turn_num = currentTurn
-            final_strategy_train.final_strategy.last_self_score = score0
-            final_strategy_train.final_strategy.last_time_trot = isTimeTrot
-
-        elif strategy0 == final_strategy_train.final_strategy_hist:
-            final_strategy_train.final_strategy_hist.last_opponent_score = score1
-            final_strategy_train.final_strategy_hist.last_turn_num = currentTurn
-            final_strategy_train.final_strategy_hist.last_self_score = score0
-            final_strategy_train.final_strategy_hist.last_time_trot = isTimeTrot
+            totalPossibility += cPossibility * (1.0 - calculateWinRateOfStrat0(strategy1,strategy0,score1,newScore0,goal,0,canCacheStrat1,canCacheStrat0,0,rLevel+1,not(Flipped),currentIterationTotalPossibility))
 
     totalPossibility = max(min(totalPossibility,1.0),0.0)
 

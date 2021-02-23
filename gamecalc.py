@@ -141,5 +141,5 @@ def more_boar(player_score, opponent_score):
     return player_firstDigit < opponent_firstDigit and player_secondDigit < opponent_secondDigit
     # END PROBLEM 4
 
-def time_trot(turn, numRolls, lastTimeTrot):
-    return turn % 8 == numRolls if not(lastTimeTrot) else False
+def time_trot(turn, numRolls, lastExtra):
+    return turn % 8 == numRolls if not(lastExtra) else False
