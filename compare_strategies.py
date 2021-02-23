@@ -13,7 +13,7 @@ GOAL_SCORE = 100
 
 ENDPOINT = "https://hog-calc.cs61a.org/api/compare_strategies"
 STRATEGY_TO_COMPARE_TO = "last_before_ult"
-STRATEGY_TO_COMPARE_TO_EPOCH = 1
+STRATEGY_TO_COMPARE_TO_EPOCH = 10
 COMP_STRAT_FILENAME = 'savedStrats/' + STRATEGY_TO_COMPARE_TO + "_" + str(STRATEGY_TO_COMPARE_TO_EPOCH) + ".pkl"
 compstrat = final_strategy_train.loadStrategy(COMP_STRAT_FILENAME)
 

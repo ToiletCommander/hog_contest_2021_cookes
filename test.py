@@ -126,10 +126,6 @@ def calculateWinRateOfStrat0(strategy0, strategy1, score0 = 0, score1 = 0, goal 
         calculateWinRateOfStrat0.result_dict = {}
         calculateWinRateOfStrat0.matchTotalChance = chance
         calculateWinRateOfStrat0.matchCurrentChance = 0
-        if fitInNotTrainedHit:
-            calculateWinRateOfStrat0.fitInLists = final_strategy_train.getListNotHit()
-        else:
-            calculateWinRateOfStrat0.fitInLists = []
 
     saveKey = (Flipped, score0, score1, currentTurn >= 1,overallTurn % 8)
     
@@ -152,7 +148,7 @@ def calculateWinRateOfStrat0(strategy0, strategy1, score0 = 0, score1 = 0, goal 
         diceSide = 8
     
 
-    if strategy0 == final_strategy_train.final_strategy and not(final_strategy_train.final_strategy.producing_actual_result) and canCache and rLevel > 0:
+    if strategy0 == final_strategy_train.final_strategy and not(final_strategy_train.final_strategy.producing_actual_result) and canCache:
         final_strategy_train.startHitDataCache()
         if(fitInNotTrainedHit):
             currentKey = (score0, score1)
@@ -192,7 +188,7 @@ def calculateWinRateOfStrat0(strategy0, strategy1, score0 = 0, score1 = 0, goal 
     if rLevel != 0: #and not(saveKey in calculateWinRateOfStrat0.result_dict.keys()):
         if (canCache):
             resultPair = []
-            if strategy0 == final_strategy_train.final_strategy and not(final_strategy_train.final_strategy.producing_actual_result) and rLevel > 0:
+            if strategy0 == final_strategy_train.final_strategy and not(final_strategy_train.final_strategy.producing_actual_result):
                 hitDataCache = final_strategy_train.endHitDataCache()
                 resultPair = [totalPossibility,hitDataCache,1]
             else:
@@ -236,6 +232,10 @@ def predicts(baseStrategy, strategy, cache = True, fitInData = True, training = 
         if(fitInData and len(final_strategy_train.getListNotHit()) == 0):
             return
 
+    if training:
+        calculateWinRateOfStrat0.fitInLists = final_strategy_train.getListNotHit()
+    else:
+        calculateWinRateOfStrat0.fitInLists = []
     predictResult0 = calculateWinRateOfStrat0(strategy,baseStrategy,0,0,100,0,cache,fitInData)
     predictResult1 = calculateWinRateOfStrat0(strategy,baseStrategy,0,0,100,1,cache,fitInData)
     predictResult = (predictResult0 + predictResult1) / 2.0

@@ -382,6 +382,8 @@ def saveStrategy(filename,strategyToSave):
     for i in range(0,100):
         for j in range(0,100):
             key = (i,j)
+            if DEBUG_ON:
+                print("saving strategy step",key)
             strategyDict[key] = strategyToSave(i,j)
     saveDictionary(filename,strategyDict)
 

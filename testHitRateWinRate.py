@@ -8,6 +8,8 @@ from os import path
 TRAIN_START_NAME = submissions.STRATEGY_NAME
 TRAIN_EPOCH_NUM = submissions.EPOCH_NUM
 
+final_strategy_train.DEBUG_ON = False
+
 FILENAME = 'savedStrats/' + TRAIN_START_NAME + "_" + str(TRAIN_EPOCH_NUM) + ".pkl"
 
 finalStrategyToTrain = final_strategy_train.loadStrategy(FILENAME) if path.exists(FILENAME) else final_strategy_train.final_strategy
