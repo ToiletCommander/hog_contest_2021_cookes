@@ -16,7 +16,6 @@ EXCESS_DEBUG = False
 TRAIN_STRATEGY_NAME = submissions.STRATEGY_NAME
 PLAYER_NAME = submissions.SUBMIT_NAME
 
-MATCH_LAST_EXTRA = False
 MATCH_CURRENT_TURN_NUM = 0
 MATCH_OVERALL_TURN_NUM = 0
 
@@ -208,7 +207,7 @@ def getWinningChance(currentPlayerLastTimeExtra, numToRoll, selfScore, opponentS
             return returnVal
         
         hitKey = (selfScore,opponentScore)
-        possibilityDict = getWinningChance.turn_hit_dict[hitKey] if hitKey in getWinningChance.turn_hit_dict.keys() else {(0,0):1,-1:1}
+        possibilityDict = getWinningChance.turn_hit_dict[hitKey] if hitKey in getWinningChance.turn_hit_dict.keys() else {(False,0):1.0,-1:1.0}
         total = possibilityDict[-1]
         returnVal = 0
         for cKey, cVal in possibilityDict.items():
@@ -467,7 +466,7 @@ def final_strategy(score, opponent_score):
     turnNumber = MATCH_CURRENT_TURN_NUM
 
     #determine strategy to play
-    strategyReturn = strategy_to_play(turnNumber,MATCH_OVERALL_TURN_NUM,score,opponent_score,MATCH_LAST_EXTRA,final_strategy.producing_actual_result)
+    strategyReturn = strategy_to_play(turnNumber,MATCH_OVERALL_TURN_NUM,score,opponent_score,turnNumber > 0,final_strategy.producing_actual_result)
     
     #decode strategyReturn
     numToRollDice = strategyReturn
@@ -480,7 +479,7 @@ def final_strategy_hist(score, opponent_score):
     turnNumber = MATCH_CURRENT_TURN_NUM
 
     #determine strategy to play
-    strategyReturn = strategy_to_play(turnNumber,MATCH_OVERALL_TURN_NUM,score,opponent_score,MATCH_LAST_EXTRA,False)
+    strategyReturn = strategy_to_play(turnNumber,MATCH_OVERALL_TURN_NUM,score,opponent_score,turnNumber > 0,False)
     
     #decode strategyReturn
     numToRollDice = strategyReturn

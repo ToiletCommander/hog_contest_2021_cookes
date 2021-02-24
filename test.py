@@ -141,15 +141,10 @@ def calculateWinRateOfStrat0(strategy0, strategy1, score0 = 0, score1 = 0, goal 
         
         return savedPair[0]
 
-    diceSide = 6
+    diceSide = 6 if currentTurn == 0 else 8
     
     isMoreBoar = False
     isTimeTrot = False
-
-    if(currentTurn == 0):
-        diceSide = 6
-    else:
-        diceSide = 8
     
 
     if not(final_strategy_train.final_strategy.producing_actual_result):
@@ -162,7 +157,7 @@ def calculateWinRateOfStrat0(strategy0, strategy1, score0 = 0, score1 = 0, goal 
                     final_strategy_train.feedHitData(canCache,currentTurn,overallTurn,score0,score1,chance)
             else:
                 final_strategy_train.feedHitData(canCache,currentTurn,overallTurn,score0,score1,chance)
-        
+    
 
     final_strategy_train.MATCH_CURRENT_TURN_NUM = currentTurn
     final_strategy_train.MATCH_LAST_EXTRA = currentTurn >= 1
@@ -185,7 +180,7 @@ def calculateWinRateOfStrat0(strategy0, strategy1, score0 = 0, score1 = 0, goal 
             totalPossibility += cPossibility * calculateWinRateOfStrat0(strategy0,strategy1,newScore0,score1,goal,0,canCache,fitInNotTrainedHit,currentTurn+1,overallTurn+1,rLevel+1,Flipped,currentIterationTotalPossibility)
         else:
             totalPossibility += cPossibility * (1.0 - calculateWinRateOfStrat0(strategy1,strategy0,score1,newScore0,goal,0,canCache,fitInNotTrainedHit,0,overallTurn+1,rLevel+1,not(Flipped),currentIterationTotalPossibility))
-
+        
     totalPossibility = max(min(totalPossibility,1.0),0.0)
 
     if final_strategy_train.DEBUG_ON and rLevel <= 60:
