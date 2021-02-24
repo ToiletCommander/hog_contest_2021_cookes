@@ -24,6 +24,8 @@ def export(strategy):
 
 
 def compare(strategy_1, strategy_2):
+    if final_strategy_train.DEBUG_ON:
+        print(json.dumps(export(strategy_1)))
     data = {
         "strat0": json.dumps(export(strategy_1)),
         "strat1": json.dumps(export(strategy_2)),

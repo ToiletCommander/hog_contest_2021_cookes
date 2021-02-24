@@ -106,9 +106,22 @@ This turns out initially to not work well because final_strategy was designed to
 - Win Rate(Against Penguins, Ranked #2): 0.479203114552
 - Win Rate(Against okonoko, Ranked #1): 0.442300378058
 
-1 Epoch (of win rate prediction) 2021-2-13 20:10 CN Time
+1 Epoch Ultimate (of win rate prediction) 2021-2-13 20:10 CN Time
 - Win Rate(Against More_Boar): 0.6738015531783106
 - Win Rate(Against More_Boar, calculated locally): 0.7138769932697604
 - Win Rate(Against Optimal, calculated locally): 0.40346881968464243
 - Win Rate(Against 10 Epoch Fair): 0.47357561852699
 - Win Rate(Against 10 Epoch Fair, calculated locally): 0.5009814053601395
+
+1 Epoch Ultimate1 (of win rate prediction) 2021-2-13 20:10 CN Time
+- Win Rate(Against More_Boar, calculated locally): 0.7159359601282804
+- Win Rate(Against Optimal, calculated locally): 0.39259596294984705
+- Win Rate(Against 1 Epoch Ultimate): 0.5031092665708581
+- Win Rate(Against 1 Epoch Ultimate, calculated locally): 0.5071407243129562
+
+1 Epoch Ultimate2 (of win rate prediction) 2021-2-13 20:10 CN Time
+- Win Rate(Against More_Boar, calculated locally): 0.7159359601282804
+- Win Rate(Against Optimal, calculated locally): 0.39259596294984705
+- Win Rate(Against 1 Epoch Ultimate1): 0.5031092665708581
+- Win Rate(Against 1 Epoch Ultimate1, calculated locally): 0.5071407243129562
+

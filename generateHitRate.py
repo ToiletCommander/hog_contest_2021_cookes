@@ -9,7 +9,8 @@ TRAINING_START_NAME = submissions.STRATEGY_NAME
 
 def train():
     #test.predicts(final_strategy_train.final_strategy_hist,final_strategy_train.final_strategy,True,False,True,True)
-    test.predicts(final_strategy_train.loadStrategy('savedStrats/last_before_ult_10.pkl'),final_strategy_train.final_strategy,True,True,True,True)
+    test.predicts(final_strategy_train.loadStrategy('savedStrats/ultimate1_1.pkl'),final_strategy_train.final_strategy,True,False,True,True)
+    test.predicts(final_strategy_train.loadStrategy('savedStrats/ultimate_2.pkl'),final_strategy_train.final_strategy,True,True,True,True)
     test.predicts(final_strategy_train.more_boar_strategy,final_strategy_train.final_strategy,True,True,True,True)
     test.predicts(baseline_strategy.baseline_strategy,final_strategy_train.final_strategy,True,True,True,True)
 
