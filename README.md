@@ -120,8 +120,8 @@ This turns out initially to not work well because final_strategy was designed to
 - Win Rate(Against 1 Epoch Ultimate, calculated locally): 0.5071407243129562
 
 1 Epoch Ultimate2 (of win rate prediction) 2021-2-13 20:10 CN Time
-- Win Rate(Against More_Boar, calculated locally): 0.7159359601282804
-- Win Rate(Against Optimal, calculated locally): 0.39259596294984705
-- Win Rate(Against 1 Epoch Ultimate1): 0.5031092665708581
-- Win Rate(Against 1 Epoch Ultimate1, calculated locally): 0.5071407243129562
+- Win Rate(Against More_Boar, calculated locally): 0.7164507122873559
+- Win Rate(Against Optimal, calculated locally): 0.39288184916133617
+- Win Rate(Against 1 Epoch Ultimate1): 0.49999
+- Win Rate(Against 1 Epoch Ultimate1, calculated locally): 0.500289531571336
 
