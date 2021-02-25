@@ -1,7 +1,7 @@
 # hog_contest
  - UC Berkeley Spring 2021 Hog Contest Participant Team: `CookEs` Source Code
  - 3rd place in the end, I heard from TA that the first place used the same strategy with this code, but there might be a competition rule understanding error with this project.
- - This project's ultimate strategy is theoratically undefeatable because it used win rate prediction to generate hit data.
+ - This project's ultimate strategy is theoratically undefeatable because it used win rate prediction to generate hit data.(or it might not be because the competition is not deterministic)
 
 ## Design Concept
 Since @ToiletCommander studied `XSTAT 2` during his freshman Fall19 FPF Semester, he considered using a probability model to estimate the win rate for rolling `n` dices at a given point to compete in the HOG contest.   
